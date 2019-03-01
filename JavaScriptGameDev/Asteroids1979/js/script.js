@@ -4,9 +4,10 @@ jQuery('document').ready(function() {
 	const SHIP_INV_DURATION = 3;
 	const SHIP_BLINK_DURATION = 0.1;
 	const SHIP_THRUST = 1.5;
+	const SHIP_LIVES = 3;
 	const TURN_SPEED = 189;
 	const FRICTION = 0.4;
-	const ROIDS_SUM = 7;
+	const ROIDS_AMOUNT = 1;
 	const ROIDS_JAG = 0.4;
 	const ROIDS_SIZE = 50;
 	const ROIDS_SPEED = 50;
@@ -15,6 +16,8 @@ jQuery('document').ready(function() {
 	const LASER_DISTANCE = 0.3;
 	const LASER_SPEED = 500;
 	const LASER_EXPLODE_DURATION = 0.1;
+	const TEXT_FADE_TIME = 2.5;
+	const TEXT_SIZE = 30;
 	const LEFT_ARROW = 37;
 	const RIGHT_ARROW = 38;
 	const UP_ARROW = 39;
@@ -22,26 +25,40 @@ jQuery('document').ready(function() {
 
 	var canvas = document.getElementById("gameCanvas");
 	var context = canvas.getContext("2d");
-	var ship = newShip();
-	var roids = [];
-	createAsteroids();
+	var level, lives, roids, ship, text, textAlpha;
+	newGame();
 	var exploding = false;
 
 	function update() {
 		drawSpace();
-		drawShip();
+		drawShip(ship.xCoordinate,ship.yCoordinate,ship.angle);
+		thrustShip();
 		drawAsteroids();
 		drawCenterDot();
 		drawLazers();
+		drawLives();
 		checkCollisions();
 		rotateShip();
 		moveShip();
 		moveLasers();
-		thrustShip();
 		handleEdgeAreaForShip();
 		handleEdgeAreaForAsteroids();
 		handleEdgeAreaForLasers();
-		detectLaserHitOnAsteroid(); 
+		detectLaserHitOnAsteroid();
+		gameText(); 
+	}
+
+	function newGame() {
+		level = 0;
+		lives = SHIP_LIVES;
+		ship = newShip();
+		newLevel();
+	}
+
+	function newLevel() {
+		text = "Level " + (level + 1);
+		textAlpha = 1.0;
+		createAsteroids();
 	}
 
 	function drawSpace() {
@@ -59,6 +76,7 @@ jQuery('document').ready(function() {
 			blinkTime: Math.ceil(SHIP_BLINK_DURATION * FPS),
 			explodeTime: 0,
 			canShoot: true,
+			dead: false,
 			lasers: [],
 			rotation: 0,
 			thrusting: false,
@@ -69,10 +87,34 @@ jQuery('document').ready(function() {
 		}
 	}
 
+	function drawShip(x,y,angle, color = "green") {
+		if (!ship.dead) {
+		context.strokeStyle = color;
+		context.lineWidth = SHIP_SIZE / 20;
+		context.beginPath();
+		var noseShip = context.moveTo(
+			x + 4 / 3 * ship.radius * Math.cos(angle),
+			y - 4 / 3 * ship.radius * Math.sin(angle)
+			);
+		var rearLeft = context.lineTo(
+			x - ship.radius * (2 / 3 * Math.cos(angle) + Math.sin(angle)),
+			y + ship.radius * (2 / 3 * Math.sin(angle) - Math.cos(angle))
+			);
+		var rearRight = context.lineTo(
+			x - ship.radius * (2 / 3 * Math.cos(angle) - Math.sin(angle)),
+			y + ship.radius * (2 / 3 * Math.sin(angle) + Math.cos(angle))
+			);
+		context.closePath();
+		context.stroke();
+		}
+		moveAsteroid();
+
+	}
+
 	function createAsteroids() {
 		roids = [];
 		var xCoordinateRoid,yCoordinateRoid;
-		for (var i = 0; i < ROIDS_SUM; i++) {
+		for (var i = 0; i < ROIDS_AMOUNT + level; i++) {
 			do {
 				xCoordinateRoid = Math.floor(Math.random() * canvas.width);
 				yCoordinateRoid = Math.floor(Math.random() * canvas.height);
@@ -92,11 +134,12 @@ jQuery('document').ready(function() {
 	}
 
 	function newAsteroid(xRoid,yRoid,rRoid) {
+		var lvlMult = 1 + 0.1 * level;
 		var roid = {
 			xRoid:xRoid,
 			yRoid:yRoid,
-			xSpeedRoid: Math.random() * ROIDS_SPEED / FPS * (Math.random() < 0.5 ? 1: -1),
-			ySpeedRoid: Math.random() * ROIDS_SPEED / FPS * (Math.random() < 0.5 ? 1: -1),
+			xSpeedRoid: Math.random() * ROIDS_SPEED * lvlMult / FPS * (Math.random() < 0.5 ? 1: -1),
+			ySpeedRoid: Math.random() * ROIDS_SPEED * lvlMult / FPS * (Math.random() < 0.5 ? 1: -1),
 			rRoid: rRoid,
 			aRoid: Math.random() * Math.PI * 2,
 			vertRoid: Math.floor(Math.random() * (ROIDS_VERT + 1) + ROIDS_VERT / 2),
@@ -108,6 +151,28 @@ jQuery('document').ready(function() {
 		}
 
 		return roid;
+	}
+
+	function destroyAsteroid(index) {
+		var xAst = roids[index].xRoid;
+		var yAst = roids[index].yRoid;
+		var rAst = roids[index].rRoid;
+
+		if (rAst == Math.ceil(ROIDS_SIZE / 2)) {
+			roids.push(newAsteroid(xAst,yAst,Math.ceil(ROIDS_SIZE / 4)));
+			roids.push(newAsteroid(xAst,yAst,Math.ceil(ROIDS_SIZE / 4)));
+		}
+		else if(rAst == Math.ceil(ROIDS_SIZE / 4)) {
+			roids.push(newAsteroid(xAst,yAst,Math.ceil(ROIDS_SIZE / 8)));
+			roids.push(newAsteroid(xAst,yAst,Math.ceil(ROIDS_SIZE / 8)));
+		}
+		roids.splice(index,1);
+
+		if (roids.length == 0) {
+			level++;
+			newLevel();
+		}
+
 	}
 
 	function drawAsteroids() {
@@ -138,42 +203,6 @@ jQuery('document').ready(function() {
 			context.closePath();
 			context.stroke();
 		}
-	}
-
-	function drawShip() {
-		if (ship.rotation == 0) {
-			context.strokeStyle = "red";	
-		} else {
-			context.strokeStyle = "yellow";
-		}
-
-		if (ship.thrusting) {
-			context.strokeStyle = "green";
-		}
-		drawShape();
-		moveAsteroid();
-
-	}
-
-
-	function drawShape() {
-		context.lineWidth = SHIP_SIZE / 20;
-		context.beginPath();
-		var noseShip = context.moveTo(
-			ship.xCoordinate + 4 / 3 * ship.radius * Math.cos(ship.angle),
-			ship.yCoordinate - 4 / 3 * ship.radius * Math.sin(ship.angle)
-			);
-		var rearLeft = context.lineTo(
-			ship.xCoordinate - ship.radius * (2 / 3 *Math.cos(ship.angle) + Math.sin(ship.angle)),
-			ship.yCoordinate + ship.radius * (2 / 3 *Math.sin(ship.angle) - Math.cos(ship.angle))
-			);
-		var rearRight = context.lineTo(
-			ship.xCoordinate - ship.radius * (2 / 3 *Math.cos(ship.angle) - Math.sin(ship.angle)),
-			ship.yCoordinate + ship.radius * (2 / 3 *Math.sin(ship.angle) + Math.cos(ship.angle))
-			);
-		context.closePath();
-		context.stroke();
-
 	}
 
 	function drawLazers() {
@@ -239,12 +268,12 @@ jQuery('document').ready(function() {
 			ship.yCoordinate + ship.radius * (2 / 3 * Math.sin(ship.angle) - 0.5 * Math.cos(ship.angle))
 			);
 		var rearCenter = context.lineTo(
-			ship.xCoordinate - ship.radius * (6 / 3 *Math.cos(ship.angle)),
-			ship.yCoordinate + ship.radius * (6 / 3 *Math.sin(ship.angle))
+			ship.xCoordinate - ship.radius * (6 / 3 * Math.cos(ship.angle)),
+			ship.yCoordinate + ship.radius * (6 / 3 * Math.sin(ship.angle))
 			);
 		var rearRight = context.lineTo(
-			ship.xCoordinate - ship.radius * (2 / 3 *Math.cos(ship.angle) - 0.5 * Math.sin(ship.angle)),
-			ship.yCoordinate + ship.radius * (2 / 3 *Math.sin(ship.angle) + 0.5 * Math.cos(ship.angle))
+			ship.xCoordinate - ship.radius * (2 / 3 * Math.cos(ship.angle) - 0.5 * Math.sin(ship.angle)),
+			ship.yCoordinate + ship.radius * (2 / 3 * Math.sin(ship.angle) + 0.5 * Math.cos(ship.angle))
 			);
 		context.closePath();
 		context.fill();
@@ -252,8 +281,10 @@ jQuery('document').ready(function() {
 	}
 
 	function drawCenterDot() {
+		if (!ship.dead) {
 		context.fillStyle = getRandomColor();
 		context.fillRect(ship.xCoordinate - 1, ship.yCoordinate - 1,2,2);
+		}
 	}
 
 	function getRandomColor() {
@@ -281,44 +312,39 @@ jQuery('document').ready(function() {
 			false);
 		context.fill();
 		context.stroke();
-		ship.xCoordinate = canvas.width / 2;
-		ship.yCoordinate = canvas.height / 2;
 		ship.thrusting = false;
-		exploding = false;
 		context.fillStyle = "darkred";
 		context.fill();
 	}
 
-	function destroyAsteroid(index) {
-		var xAst = roids[index].xRoid;
-		var yAst = roids[index].yRoid;
-		var rAst = roids[index].rRoid;
-
-		if (rAst == Math.ceil(ROIDS_SIZE / 2)) {
-			roids.push(newAsteroid(xAst,yAst,Math.ceil(ROIDS_SIZE / 4)));
-			roids.push(newAsteroid(xAst,yAst,Math.ceil(ROIDS_SIZE / 4)));
-		}
-		else if(rAst == Math.ceil(ROIDS_SIZE / 4)) {
-			roids.push(newAsteroid(xAst,yAst,Math.ceil(ROIDS_SIZE / 8)));
-			roids.push(newAsteroid(xAst,yAst,Math.ceil(ROIDS_SIZE / 8)));
-		}
-		roids.splice(index,1);
-
+	function gameOver() {
+		ship.dead = true;
+		text = "Game Over";
+		textAlpha = 1.0;
 	}
 
 	function checkCollisions() {
-		for (var i = 0; i < roids.length; i++) {
-			if (distBetweenPoints(
-				ship.xCoordinate,
-				ship.yCoordinate,
-				roids[i].xRoid,
-				roids[i].yRoid) < ship.radius + roids[i].rRoid) {
-				explodeShip();
+		if (!ship.dead) {
+			for (var i = 0; i < roids.length; i++) {
+				if (distBetweenPoints(
+					ship.xCoordinate,
+					ship.yCoordinate,
+					roids[i].xRoid,
+					roids[i].yRoid) < ship.radius + roids[i].rRoid) {
+					explodeShip();
 				destroyAsteroid(i);
+				lives--;
+				if (lives == 0 ) {
+					gameOver();
+				}
+				else {
+					ship = newShip();
+				}
 				break;
 			}
 		}
 	}
+}
 
 	function handleEdgeAreaForShip() {
 		if (ship.xCoordinate < 0 - ship.radius) {
@@ -339,46 +365,47 @@ jQuery('document').ready(function() {
 	function handleEdgeAreaForAsteroids() {
 		for (var i = 0; i < roids.length; i++) {
 			if (roids[i].xRoid < 0 - roids[i].rRoid) {
-				roids[i].xRoid = canvas.width + roids[i].rRoid
+				roids[i].xRoid = canvas.width + roids[i].rRoid;
 			}
 			else if(roids[i].xRoid > canvas.width + roids[i].rRoid) {
-				roids[i].xRoid = 0 - roids[i].rRoid
+				roids[i].xRoid = 0 - roids[i].rRoid;
 			}
 			if (roids[i].yRoid < 0 - roids[i].radius) {
-				roids[i].yRoid = canvas.height + roids[i].rRoid
+				roids[i].yRoid = canvas.height + roids[i].rRoid;
 			}				
 			else if(roids[i].yRoid > canvas.height + roids[i].rRoid) {
-				roids[i].yRoid = 0 - roids[i].rRoid
+				roids[i].yRoid = 0 - roids[i].rRoid;
 			}
+
 		}
 	}
 
 	function handleEdgeAreaForLasers() {
 		for (var i = ship.lasers.length - 1; i >= 0; i--) {
-					// handle edge of screen
-					if (ship.lasers[i].xLaser < 0 ) {
+			// handle edge of screen
+			if (ship.lasers[i].xLaser < 0 ) {
 						ship.lasers[i].xLaser = canvas.width;
-					}
-					else if(ship.lasers[i].xLaser > canvas.width) {
-						ship.lasers[i].xLaser = 0;
-					}
-
-					if (ship.lasers[i].yLaser < 0 ) {
-						ship.lasers[i].yLaser = canvas.height;
-					}
-					else if(ship.lasers[i].yLaser > canvas.height) {
-						ship.lasers[i].yLaser = 0;
-					}
-				}
 			}
+			else if(ship.lasers[i].xLaser > canvas.width) {
+				ship.lasers[i].xLaser = 0;
+			}
+
+			if (ship.lasers[i].yLaser < 0 ) {
+				ship.lasers[i].yLaser = canvas.height;
+			}
+			else if(ship.lasers[i].yLaser > canvas.height) {
+				ship.lasers[i].yLaser = 0;
+			}
+		}
+	}
 
 	function rotateShip() {
 		ship.angle += ship.rotation;
 	}
 
 	function moveShip() {
-		ship.xCoordinate += ship.thrust.xCoordinateTrust
-		ship.yCoordinate += ship.thrust.yCoordinateTrust
+		ship.xCoordinate += ship.thrust.xCoordinateTrust;
+		ship.yCoordinate += ship.thrust.yCoordinateTrust;
 	}
 
 	function moveAsteroid() {
@@ -389,7 +416,7 @@ jQuery('document').ready(function() {
 	}
 
 	function thrustShip() {
-		if (ship.thrusting) {
+		if (ship.thrusting && !ship.dead) {
 			ship.thrust.xCoordinateTrust += SHIP_THRUST * Math.cos(ship.angle) / FPS;
 			ship.thrust.yCoordinateTrust -= SHIP_THRUST * Math.sin(ship.angle) / FPS;
 			drawThruster();
@@ -428,7 +455,7 @@ jQuery('document').ready(function() {
 	}
 
 	function shootLaser() {
-		if (ship.canShoot && ship.lasers.length < LASER_MAX) {
+		if (ship.canShoot && ship.lasers.length < LASER_MAX && !ship.dead) {
 			ship.lasers.push({
 				xLaser:ship.xCoordinate + 4 / 3 * ship.radius * Math.cos(ship.angle),
 				yLaser:ship.yCoordinate - 4 / 3 * ship.radius * Math.sin(ship.angle),
@@ -439,7 +466,6 @@ jQuery('document').ready(function() {
 			});
 		}
 		ship.canShoot = false;
-		console.log(ship.lasers);
 	}
 
 	function detectLaserHitOnAsteroid() {
@@ -464,39 +490,77 @@ jQuery('document').ready(function() {
 		}
 	}
 
+	function gameText() {
+		if (textAlpha >= 0) {
+			context.textAlign = "center";
+			context.textBaseline = "middle";
+			context.fillStyle = "rgba(255,255,255, " + textAlpha + ")";
+			context.font = "small-caps " + TEXT_SIZE + "px dejavu sans mono";
+			context.fillText(text, canvas.width/2, canvas.height * 0.75);
+			textAlpha -= (1.0 / TEXT_FADE_TIME / FPS);
+		}
+		else if (ship.dead) {
+			newGame();
+		}
+	}
+
+	function drawLives() {
+		var lifeColor;
+		for (var i = 0; i < lives; i++) {
+			if (lifeColor = exploding && i == lives - 1) {
+				lifeColor = "red";
+				exploding = false;	
+			} 
+			else { 
+				lifeColor =  "green";
+			}
+			drawShip(
+				-20 + SHIP_SIZE + i * SHIP_SIZE * 0.5, 
+				SHIP_SIZE * 0.4, 0.5 * Math.PI,
+				lifeColor);
+		}
+	}
+
 	document.addEventListener("keydown",keyPressed);
 	document.addEventListener("keyup",keyReleased);
 
 	function keyPressed(ev) { 
+		if (ship.dead) {
+			return;
+		}
+
 		switch(ev.keyCode) {
 			case SPACEBAR:
 			shootLaser();
 			break;
 			case LEFT_ARROW: 
-			ship.rotation = TURN_SPEED / 100 * Math.PI / FPS
+			ship.rotation = TURN_SPEED / 100 * Math.PI / FPS;
 			break;
 			case RIGHT_ARROW:
 			ship.thrusting = true;
 			break;
 			case UP_ARROW:
-			ship.rotation = -TURN_SPEED / 100 * Math.PI / FPS
+			ship.rotation = -TURN_SPEED / 100 * Math.PI / FPS;
 			break;
 		}
 	}
 
 	function keyReleased(ev) { 
+		if (ship.dead) {
+			return;
+		}
 		switch(ev.keyCode) {
 			case SPACEBAR:
 			ship.canShoot = true;
 			break;
 			case LEFT_ARROW: 
-			ship.rotation = 0
+			ship.rotation = 0;
 			break;
 			case RIGHT_ARROW:
 			ship.thrusting = false;
 			break;
 			case UP_ARROW:
-			ship.rotation = 0
+			ship.rotation = 0;
 			break;
 		}
 	}
