@@ -13,6 +13,7 @@ jQuery('document').ready(function() {
 	const FRICTION = 0.4;
 	const SHIP_THRUST = 1.5;
 	const LASER_MAX = 10;
+	const LASER_DISTANCE = 0.2;
 	const LASER_SPEED = 500;
 	const LEFT_ARROW = 37;
 	const RIGHT_ARROW = 38;
@@ -38,6 +39,7 @@ jQuery('document').ready(function() {
 		moveLasers();
 		thrustShip();
 		handleEdgeArea();
+		detectLaserHitOnAsteroid(); 
 	}
 
 	function drawSpace() {
@@ -295,9 +297,34 @@ jQuery('document').ready(function() {
 	}
 
 	function moveLasers() {
-		for (var i = 0; i < ship.lasers.length; i++) {
+		for (var i = ship.lasers.length - 1; i >= 0; i--) {
+			// remove laser
+			if (ship.lasers[i].distance > LASER_DISTANCE * canvas.width) {
+				ship.lasers.splice(i,1);
+				continue;
+			}
+			//move the laser
 			ship.lasers[i].xLaser += ship.lasers[i].xSpeedLaser;
 			ship.lasers[i].yLaser += ship.lasers[i].ySpeedLaser;
+
+			//calculate the distance travelled
+			ship.lasers[i].distance += Math.sqrt(
+				Math.pow(ship.lasers[i].xSpeedLaser,2) +
+				Math.pow(ship.lasers[i].ySpeedLaser,2));
+			// handle edge of screen
+			if (ship.lasers[i].xLaser < 0 ) {
+				ship.lasers[i].xLaser = canvas.width;
+			}
+			else if(ship.lasers[i].xLaser > canvas.width) {
+				ship.lasers[i].xLaser = 0;
+			}
+
+			if (ship.lasers[i].yLaser < 0 ) {
+				ship.lasers[i].yLaser = canvas.height;
+			}
+			else if(ship.lasers[i].yLaser > canvas.height) {
+				ship.lasers[i].yLaser = 0;
+			}
 		}
 	}
 
@@ -307,12 +334,37 @@ jQuery('document').ready(function() {
 				xLaser:ship.xCoordinate + 4 / 3 * ship.radius * Math.cos(ship.angle),
 				yLaser:ship.yCoordinate - 4 / 3 * ship.radius * Math.sin(ship.angle),
 				xSpeedLaser:LASER_SPEED * Math.cos(ship.angle) / FPS,
-				ySpeedLaser: -LASER_SPEED * Math.sin(ship.angle) / FPS
+				ySpeedLaser: -LASER_SPEED * Math.sin(ship.angle) / FPS,
+				distance: 0
 			});
 		}
 		ship.canShoot = false;
 		console.log(ship.lasers);
 	}
+
+	function detectLaserHitOnAsteroid() {
+		var asteroidX,asteroidY,asteroidRadius,laserX,laserY;
+		for (var i = roids.length - 1; i >= 0; i--) {
+			asteroidX = roids[i].xRoid;
+			asteroidY = roids[i].yRoid;
+			asteroidRadius = roids[i].rRoid;
+
+			for (var j = ship.lasers.length - 1; j >= 0; j--) {
+				laserX = ship.lasers[j].xLaser;
+				laserY = ship.lasers[j].yLaser;
+
+				if (distBetweenPoints(asteroidX,asteroidY,laserX,laserY) < asteroidRadius) {
+					ship.lasers.splice(j,1);
+					roids.splice(i,1);
+					break;					
+				}
+
+				console.log(laserX);
+				console.log(laserY);
+			}
+		}
+	}
+
 
 	function moveAsteroid() {
 		for (var i = 0; i < roids.length; i++) {
