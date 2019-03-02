@@ -18,6 +18,8 @@ jQuery('document').ready(function() {
 	const LASER_DISTANCE = 0.3;
 	const LASER_SPEED = 500;
 	const LASER_EXPLODE_DURATION = 0.1;
+	const SOUND_ON = true;
+	const MUSIC_ON = true;
 	const TEXT_FADE_TIME = 2.5;
 	const TEXT_SIZE = 30;
 	const LEFT_ARROW = 37;
@@ -27,6 +29,12 @@ jQuery('document').ready(function() {
 
 	var canvas = document.getElementById("gameCanvas");
 	var context = canvas.getContext("2d");
+	var fxLaser = new Sound("resources/sounds/modern/star-wars/blaster.mp3",5,0.5);
+	var fxHit = new Sound("resources/sounds/classic/hit.m4a", 5);
+	var fxExplode = new Sound("resources/sounds/modern/star-wars/jabba-laugh.mp3");
+	var fxThrust = new Sound("resources/sounds/classic/thrust.m4a");
+	var musicBackground = new Music("resources/sounds/classic/music-low.m4a","resources/sounds/classic/music-high.m4a");
+	var roidsLeft, roidsTotal;
 	var level, lives, score, scoreHigh, roids, ship, text, textAlpha;
 	newGame();
 	var exploding = false;
@@ -50,6 +58,7 @@ jQuery('document').ready(function() {
 		handleEdgeAreaForAsteroids();
 		detectLaserHitOnAsteroid();
 		gameText(); 
+		musicTick();
 	}
 
 	function newGame() {
@@ -123,6 +132,8 @@ jQuery('document').ready(function() {
 
 	function createAsteroids() {
 		roids = [];
+		roidsTotal = (ROIDS_AMOUNT + level) * 7;
+		roidsLeft = roidsTotal;
 		var xCoordinateRoid,yCoordinateRoid;
 		for (var i = 0; i < ROIDS_AMOUNT + level; i++) {
 			do {
@@ -186,8 +197,11 @@ jQuery('document').ready(function() {
 			scoreHigh = score;
 			localStorage.setItem(SAVE_KEY_SCORE,scoreHigh);
 		}
-
+		fxHit.play();
 		roids.splice(index,1);
+
+		roidsLeft--;
+		musicBackground.setAsteroidRatio(roidsLeft == 0 ? 1: roidsLeft/ roidsTotal);
 
 		if (roids.length == 0) {
 			level++;
@@ -336,6 +350,7 @@ jQuery('document').ready(function() {
 		ship.thrusting = false;
 		context.fillStyle = "darkred";
 		context.fill();
+		fxExplode.play();
 	}
 
 	function gameOver() {
@@ -423,10 +438,12 @@ jQuery('document').ready(function() {
 			ship.thrust.xCoordinateTrust += SHIP_THRUST * Math.cos(ship.angle) / FPS;
 			ship.thrust.yCoordinateTrust -= SHIP_THRUST * Math.sin(ship.angle) / FPS;
 			drawThruster();
+			fxThrust.play();
 		} 
 		else {
 			ship.thrust.xCoordinateTrust -= FRICTION * ship.thrust.xCoordinateTrust / FPS;
 			ship.thrust.yCoordinateTrust -= FRICTION * ship.thrust.yCoordinateTrust / FPS;
+			fxThrust.stop();
 		}
 	}
 
@@ -467,6 +484,7 @@ jQuery('document').ready(function() {
 				distance: 0,
 				explodeTime:0
 			});
+			fxLaser.play();
 		}
 		ship.canShoot = false;
 	}
@@ -582,6 +600,64 @@ jQuery('document').ready(function() {
 			ship.rotation = 0;
 			break;
 		}
+	}
+
+	function Sound(src,maxStreams = 1, volume = 1.0) {
+		this.streamNum = 0;
+		this.streams = [];
+		for (var i = 0; i < maxStreams; i++) {
+			this.streams.push(new Audio(src));
+			this.streams[i].volume = volume;
+		}
+
+		this.play = function() {
+			if (SOUND_ON) {
+				this.streamNum = (this.streamNum + 1) % maxStreams;
+				this.streams[this.streamNum].play();
+			}
+		}
+
+		this.stop = function() {
+			this.streams[this.streamNum].pause();
+		}
+	}
+
+	function Music(srcLow, srcHigh) {
+		this.soundLow = new Audio(srcLow);
+		this.soundHigh = new Audio(srcHigh);
+		this.low = true;
+		this.tempo = 1.0;
+		this.beatTime = 0;
+
+		this.play = function() {
+			if (MUSIC_ON) {
+				if (this.low) {
+					this.soundLow.play();
+				}
+				else {
+					this.soundHigh.play();
+				}
+				this.low = !this.low;
+			}
+		}
+
+		this.setAsteroidRatio = function(ratio) {
+			this.tempo = 1.0 - 0.75 * (1.0 - ratio);
+		}
+
+		this.tick = function() {
+			if (this.beatTime == 0) {
+				this.play();
+				this.beatTime = Math.ceil(this.tempo * FPS);
+			}
+			else {
+				this.beatTime--;
+			}
+		}
+	}
+
+	function musicTick() {
+		musicBackground.tick();
 	}
 
 });
