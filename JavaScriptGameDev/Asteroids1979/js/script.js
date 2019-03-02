@@ -1,8 +1,6 @@
 jQuery('document').ready(function() {
 	const FPS = 25;
 	const SHIP_SIZE = 35;
-	const SHIP_INV_DURATION = 3;
-	const SHIP_BLINK_DURATION = 0.1;
 	const SHIP_THRUST = 1.5;
 	const SHIP_LIVES = 3;
 	const TURN_SPEED = 189;
@@ -12,6 +10,10 @@ jQuery('document').ready(function() {
 	const ROIDS_SIZE = 50;
 	const ROIDS_SPEED = 50;
 	const ROIDS_VERT = 10;
+	const ROIDS_POINTS_LARGE = 20;
+	const ROIDS_POINTS_MEDIUM = 50;
+	const ROIDS_POINTS_SMALL = 100;
+	const SAVE_KEY_SCORE = "highscore";
 	const LASER_MAX = 10;
 	const LASER_DISTANCE = 0.3;
 	const LASER_SPEED = 500;
@@ -25,9 +27,10 @@ jQuery('document').ready(function() {
 
 	var canvas = document.getElementById("gameCanvas");
 	var context = canvas.getContext("2d");
-	var level, lives, roids, ship, text, textAlpha;
+	var level, lives, score, scoreHigh, roids, ship, text, textAlpha;
 	newGame();
 	var exploding = false;
+	setInterval(update, 1000 / FPS);
 
 	function update() {
 		drawSpace();
@@ -37,21 +40,30 @@ jQuery('document').ready(function() {
 		drawCenterDot();
 		drawLazers();
 		drawLives();
+		drawScore();
+		drawHighScore();
 		checkCollisions();
 		rotateShip();
 		moveShip();
 		moveLasers();
 		handleEdgeAreaForShip();
 		handleEdgeAreaForAsteroids();
-		handleEdgeAreaForLasers();
 		detectLaserHitOnAsteroid();
 		gameText(); 
 	}
 
 	function newGame() {
 		level = 0;
+		score = 0;
 		lives = SHIP_LIVES;
 		ship = newShip();
+		var scoreStr = localStorage.getItem(SAVE_KEY_SCORE);
+		if (scoreStr == null) {
+			scoreHigh = 0;
+		}
+		else {
+			scoreHigh = parseInt(scoreStr);
+		}
 		newLevel();
 	}
 
@@ -72,8 +84,6 @@ jQuery('document').ready(function() {
 			yCoordinate: canvas.height / 2,
 			radius: SHIP_SIZE / 5,
 			angle: 90 / 180 * Math.PI,
-			blinkNum: Math.ceil(SHIP_INV_DURATION / SHIP_BLINK_DURATION * FPS),
-			blinkTime: Math.ceil(SHIP_BLINK_DURATION * FPS),
 			explodeTime: 0,
 			canShoot: true,
 			dead: false,
@@ -89,23 +99,23 @@ jQuery('document').ready(function() {
 
 	function drawShip(x,y,angle, color = "green") {
 		if (!ship.dead) {
-		context.strokeStyle = color;
-		context.lineWidth = SHIP_SIZE / 20;
-		context.beginPath();
-		var noseShip = context.moveTo(
-			x + 4 / 3 * ship.radius * Math.cos(angle),
-			y - 4 / 3 * ship.radius * Math.sin(angle)
-			);
-		var rearLeft = context.lineTo(
-			x - ship.radius * (2 / 3 * Math.cos(angle) + Math.sin(angle)),
-			y + ship.radius * (2 / 3 * Math.sin(angle) - Math.cos(angle))
-			);
-		var rearRight = context.lineTo(
-			x - ship.radius * (2 / 3 * Math.cos(angle) - Math.sin(angle)),
-			y + ship.radius * (2 / 3 * Math.sin(angle) + Math.cos(angle))
-			);
-		context.closePath();
-		context.stroke();
+			context.strokeStyle = color;
+			context.lineWidth = SHIP_SIZE / 20;
+			context.beginPath();
+			var noseShip = context.moveTo(
+				x + 4 / 3 * ship.radius * Math.cos(angle),
+				y - 4 / 3 * ship.radius * Math.sin(angle)
+				);
+			var rearLeft = context.lineTo(
+				x - ship.radius * (2 / 3 * Math.cos(angle) + Math.sin(angle)),
+				y + ship.radius * (2 / 3 * Math.sin(angle) - Math.cos(angle))
+				);
+			var rearRight = context.lineTo(
+				x - ship.radius * (2 / 3 * Math.cos(angle) - Math.sin(angle)),
+				y + ship.radius * (2 / 3 * Math.sin(angle) + Math.cos(angle))
+				);
+			context.closePath();
+			context.stroke();
 		}
 		moveAsteroid();
 
@@ -161,11 +171,22 @@ jQuery('document').ready(function() {
 		if (rAst == Math.ceil(ROIDS_SIZE / 2)) {
 			roids.push(newAsteroid(xAst,yAst,Math.ceil(ROIDS_SIZE / 4)));
 			roids.push(newAsteroid(xAst,yAst,Math.ceil(ROIDS_SIZE / 4)));
+			score += ROIDS_POINTS_LARGE;
 		}
 		else if(rAst == Math.ceil(ROIDS_SIZE / 4)) {
 			roids.push(newAsteroid(xAst,yAst,Math.ceil(ROIDS_SIZE / 8)));
 			roids.push(newAsteroid(xAst,yAst,Math.ceil(ROIDS_SIZE / 8)));
+			score += ROIDS_POINTS_MEDIUM;
 		}
+		else {
+			score += ROIDS_POINTS_SMALL;
+		}
+
+		if (score > scoreHigh) {
+			scoreHigh = score;
+			localStorage.setItem(SAVE_KEY_SCORE,scoreHigh);
+		}
+
 		roids.splice(index,1);
 
 		if (roids.length == 0) {
@@ -282,8 +303,8 @@ jQuery('document').ready(function() {
 
 	function drawCenterDot() {
 		if (!ship.dead) {
-		context.fillStyle = getRandomColor();
-		context.fillRect(ship.xCoordinate - 1, ship.yCoordinate - 1,2,2);
+			context.fillStyle = getRandomColor();
+			context.fillRect(ship.xCoordinate - 1, ship.yCoordinate - 1,2,2);
 		}
 	}
 
@@ -324,27 +345,27 @@ jQuery('document').ready(function() {
 	}
 
 	function checkCollisions() {
-		if (!ship.dead) {
-			for (var i = 0; i < roids.length; i++) {
-				if (distBetweenPoints(
-					ship.xCoordinate,
-					ship.yCoordinate,
-					roids[i].xRoid,
-					roids[i].yRoid) < ship.radius + roids[i].rRoid) {
-					explodeShip();
-				destroyAsteroid(i);
-				lives--;
-				if (lives == 0 ) {
-					gameOver();
+			if (!ship.dead) {
+				for (var i = 0; i < roids.length; i++) {
+					if (distBetweenPoints(
+						ship.xCoordinate,
+						ship.yCoordinate,
+						roids[i].xRoid,
+						roids[i].yRoid) < ship.radius + roids[i].rRoid) {
+						explodeShip();
+					destroyAsteroid(i);
+					lives--;
+					if (lives == 0 ) {
+						gameOver();
+					}
+					else {
+						ship = newShip();
+					}
+					break;
 				}
-				else {
-					ship = newShip();
-				}
-				break;
 			}
 		}
 	}
-}
 
 	function handleEdgeAreaForShip() {
 		if (ship.xCoordinate < 0 - ship.radius) {
@@ -380,24 +401,6 @@ jQuery('document').ready(function() {
 		}
 	}
 
-	function handleEdgeAreaForLasers() {
-		for (var i = ship.lasers.length - 1; i >= 0; i--) {
-			// handle edge of screen
-			if (ship.lasers[i].xLaser < 0 ) {
-						ship.lasers[i].xLaser = canvas.width;
-			}
-			else if(ship.lasers[i].xLaser > canvas.width) {
-				ship.lasers[i].xLaser = 0;
-			}
-
-			if (ship.lasers[i].yLaser < 0 ) {
-				ship.lasers[i].yLaser = canvas.height;
-			}
-			else if(ship.lasers[i].yLaser > canvas.height) {
-				ship.lasers[i].yLaser = 0;
-			}
-		}
-	}
 
 	function rotateShip() {
 		ship.angle += ship.rotation;
@@ -428,29 +431,29 @@ jQuery('document').ready(function() {
 	}
 
 	function moveLasers() {
-		for (var i = ship.lasers.length - 1; i >= 0; i--) {
-			if (ship.lasers[i].distance > LASER_DISTANCE * canvas.width) {
-				ship.lasers.splice(i,1);
-				continue;
-			}
-
-			if (ship.lasers[i].explodeTime > 0 ) {
-				ship.lasers[i].explodeTime--;
-				if (ship.lasers[i].explodeTime == 0 ) {
+			for (var i = ship.lasers.length - 1; i >= 0; i--) {
+				if (ship.lasers[i].distance > LASER_DISTANCE * canvas.width) {
 					ship.lasers.splice(i,1);
 					continue;
 				}
-			}
-			else {
-			//move the laser
-			ship.lasers[i].xLaser += ship.lasers[i].xSpeedLaser;
-			ship.lasers[i].yLaser += ship.lasers[i].ySpeedLaser;
 
-			//calculate the distance travelled
-			ship.lasers[i].distance += Math.sqrt(
-				Math.pow(ship.lasers[i].xSpeedLaser,2) +
-				Math.pow(ship.lasers[i].ySpeedLaser,2));
-		     }
+				if (ship.lasers[i].explodeTime > 0 ) {
+					ship.lasers[i].explodeTime--;
+					if (ship.lasers[i].explodeTime == 0 ) {
+						ship.lasers.splice(i,1);
+						continue;
+					}
+				}
+				else {
+				//move the laser
+				ship.lasers[i].xLaser += ship.lasers[i].xSpeedLaser;
+				ship.lasers[i].yLaser += ship.lasers[i].ySpeedLaser;
+
+				//calculate the distance travelled
+				ship.lasers[i].distance += Math.sqrt(
+					Math.pow(ship.lasers[i].xSpeedLaser,2) +
+					Math.pow(ship.lasers[i].ySpeedLaser,2));
+			}
 		}
 	}
 
@@ -483,11 +486,11 @@ jQuery('document').ready(function() {
 					distBetweenPoints(asteroidX,asteroidY,laserX,laserY) < asteroidRadius) {
 					
 					destroyAsteroid(i);
-					ship.lasers[j].explodeTime = Math.ceil(LASER_EXPLODE_DURATION * FPS);
-					break;					
-				}
+				ship.lasers[j].explodeTime = Math.ceil(LASER_EXPLODE_DURATION * FPS);
+				break;					
 			}
 		}
+	}
 	}
 
 	function gameText() {
@@ -519,6 +522,22 @@ jQuery('document').ready(function() {
 				SHIP_SIZE * 0.4, 0.5 * Math.PI,
 				lifeColor);
 		}
+	}
+
+	function drawScore() {
+		context.textAlign = "right";
+		context.textBaseline = "middle";
+		context.fillStyle = "white";
+		context.font = "12px dejavu sans mono";
+		context.fillText(score, canvas.width - SHIP_SIZE / 4, SHIP_SIZE / 2.5);
+	}
+
+	function drawHighScore() {
+		context.textAlign = "center";
+		context.textBaseline = "middle";
+		context.fillStyle = "white";
+		context.font = "12px dejavu sans mono";
+		context.fillText("BEST " + scoreHigh, canvas.width / 2, SHIP_SIZE / 2.5);
 	}
 
 	document.addEventListener("keydown",keyPressed);
@@ -565,5 +584,4 @@ jQuery('document').ready(function() {
 		}
 	}
 
-	setInterval(update, 1000 / FPS);
 });
