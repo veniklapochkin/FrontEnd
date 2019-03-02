@@ -33,6 +33,20 @@ jQuery('document').ready(function() {
 	var soundHit = new Sound("resources/sounds/classic/hit.m4a", 5);
 	var soundExplode = new Sound("resources/sounds/modern/star-wars/jabba-laugh.mp3");
 	var soundThrust = new Sound("resources/sounds/classic/thrust.m4a");
+	var gabeGreetings = new Sound("resources/sounds/modern/gabe-megakills-pack/greeting.mp3");
+	var gabeFirstBlood = new Sound("resources/sounds/modern/gabe-megakills-pack/first-blood.mp3");
+	var gabeGood = new Sound("resources/sounds/modern/gabe-megakills-pack/good.mp3");
+	var gabeDoubleKill = new Sound("resources/sounds/modern/gabe-megakills-pack/double-kill.mp3");
+	var gabeTripleKill = new Sound("resources/sounds/modern/gabe-megakills-pack/triple-kill.mp3");
+	var gabeUltraKill = new Sound("resources/sounds/modern/gabe-megakills-pack/ultra-kill.mp3");
+	var gabeRampage = new Sound("resources/sounds/modern/gabe-megakills-pack/rampage.mp3");
+	var gabeKillingSpree = new Sound("resources/sounds/modern/gabe-megakills-pack/killing-spree.mp3");
+	var gabeDominating = new Sound("resources/sounds/modern/gabe-megakills-pack/dominating.mp3");
+	var gabeMegaKill = new Sound("resources/sounds/modern/gabe-megakills-pack/mega-kill.mp3");
+	var gabeUnstoppable = new Sound("resources/sounds/modern/gabe-megakills-pack/unstoppable.mp3");
+	var gabeWickedSick = new Sound("resources/sounds/modern/gabe-megakills-pack/unreal.mp3");
+	var gabeHolyShit = new Sound("resources/sounds/modern/gabe-megakills-pack/holyshit.mp3");
+	var gabeGaveOver = new Sound("resources/sounds/modern/gabe-megakills-pack/game-over.mp3");
 	var musicBackground = new Music("resources/sounds/classic/music-low.m4a","resources/sounds/classic/music-high.m4a");
 	var roidsLeft, roidsTotal;
 	var level, lives, score, scoreHigh, roids, ship, text, textAlpha;
@@ -80,6 +94,7 @@ jQuery('document').ready(function() {
 		text = "Level " + (level + 1);
 		textAlpha = 1.0;
 		createAsteroids();
+		soundsGabeMegaKillsPack();
 	}
 
 	function drawSpace() {
@@ -183,6 +198,9 @@ jQuery('document').ready(function() {
 			roids.push(newAsteroid(xAst,yAst,Math.ceil(ROIDS_SIZE / 4)));
 			roids.push(newAsteroid(xAst,yAst,Math.ceil(ROIDS_SIZE / 4)));
 			score += ROIDS_POINTS_LARGE;
+			if (level == 0) {
+				gabeFirstBlood.play();
+			}
 		}
 		else if(radiusAst == Math.ceil(ROIDS_SIZE / 4)) {
 			roids.push(newAsteroid(xAst,yAst,Math.ceil(ROIDS_SIZE / 8)));
@@ -355,8 +373,10 @@ jQuery('document').ready(function() {
 
 	function gameOver() {
 		ship.dead = true;
+		musicBackground.setAsteroidRatio(1);
 		text = "Game Over";
 		textAlpha = 1.0;
+		gabeGaveOver.play();
 	}
 
 	function checkCollisions() {
@@ -658,6 +678,57 @@ jQuery('document').ready(function() {
 
 	function musicTick() {
 		musicBackground.tick();
+	}
+
+	function soundsGabeMegaKillsPack() {
+		if (level == 0) {
+			gabeGreetings.play();
+		}
+
+		else if (level == 1) {
+			gabeGood.play();
+		}
+
+		else if (level == 2) {
+			gabeDoubleKill.play();
+		}
+
+		else if (level == 3) {
+			gabeTripleKill.play();
+		}
+
+		else if (level == 4) { 
+			gabeUltraKill.play();
+		}
+
+		else if (level == 5) { 
+			gabeRampage.play();
+		}
+
+		else if (level == 6) { 
+			gabeKillingSpree.play();
+		}
+
+		else if (level == 7) { 
+			gabeDominating.play();
+		}
+
+		else if (level == 8) { 
+			gabeMegaKill.play();
+		}
+
+		else if (level == 9) { 
+			gabeUnstoppable.play();
+		}
+
+		else if (level == 10) { 
+			gabeWickedSick.play();
+		}
+
+		else { 
+			gabeHolyShit.play();
+		}
+
 	}
 
 });
