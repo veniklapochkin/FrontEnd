@@ -60,7 +60,7 @@ jQuery('document').ready(function() {
 		thrustShip();
 		drawAsteroids();
 		drawCenterDot();
-		drawLazers();
+		drawLasers();
 		drawLives();
 		drawScore();
 		drawHighScore();
@@ -258,7 +258,7 @@ jQuery('document').ready(function() {
 		}
 	}
 
-	function drawLazers() {
+	function drawLasers() {
 		for (var i = 0; i < ship.lasers.length; i++) {
 			if (ship.lasers[i].explodeTime == 0) {
 				context.fillStyle = "salmon";
@@ -286,17 +286,6 @@ jQuery('document').ready(function() {
 					);
 				context.fill();
 				context.fillStyle = "orangered";
-				context.beginPath();
-				context.arc(
-					ship.lasers[i].xLaser,
-					ship.lasers[i].yLaser,
-					ship.radiusShip * 1.5,
-					0,
-					Math.PI * 2,
-					false
-					);
-				context.fill();
-				context.fillStyle = "pink";
 				context.beginPath();
 				context.arc(
 					ship.lasers[i].xLaser,
