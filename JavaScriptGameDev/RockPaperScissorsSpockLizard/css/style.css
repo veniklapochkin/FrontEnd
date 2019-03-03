@@ -62,7 +62,7 @@ body {
 .choice:hover {
 	cursor:pointer;
 	background: #24272E;
-	border-color: green;
+	border-color: #FFA812;
 
 }
 
@@ -71,4 +71,19 @@ body {
 	text-align: center;
 	font-weight: bold;
 	margin-top: 30px;
+}
+
+.green-glow {
+	border: 5px solid #4dcc7d;
+	box-shadow: 0 0 50px #31b43a;
+}
+
+.red-glow {
+	border: 5px solid #fc121b;
+	box-shadow: 0 0 50px #d01115;
+}
+
+.gray-glow {
+	border: 5px solid #464647;
+	box-shadow: 0 0 50px #25292b;
 }
