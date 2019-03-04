@@ -20,7 +20,7 @@ jQuery('document').ready(() => {
 	function win(userChoice) {
 		userPoint++;
 		userScore.innerHTML = userPoint;
-		result.innerHTML = "USER WIN";
+		result.innerHTML = "USER WIN ROUND";
 		document.getElementById(userChoice).classList.add("green-glow");
 		setTimeout(
 			() => document.getElementById(userChoice).classList.remove("green-glow")
@@ -30,7 +30,7 @@ jQuery('document').ready(() => {
 	function lose(userChoice) {
 		computerPoint++;
 		computerScore.innerHTML = computerPoint;
-		result.innerHTML = "COMPUTER WIN";
+		result.innerHTML = "COMPUTER WIN ROUND";
 		document.getElementById(userChoice).classList.add("red-glow");
 		setTimeout(
 			() => document.getElementById(userChoice).classList.remove("red-glow")
