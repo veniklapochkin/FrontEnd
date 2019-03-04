@@ -1,6 +1,8 @@
 jQuery('document').ready(() => {
 	let userPoint = 0;
 	let computerPoint = 0;
+	let userVictories = 0;
+	let computerVictories = 0;
 	const userScore = document.getElementById("user-score");
 	const computerScore = document.getElementById("computer-score");
 	const scoreBoard = document.querySelector(".score-board");
@@ -17,7 +19,7 @@ jQuery('document').ready(() => {
 		return choices[randomNumber];
 	}
 
-	function win(userChoice) {
+	function showWin(userChoice) {
 		userPoint++;
 		userScore.innerHTML = userPoint;
 		result.innerHTML = "USER WIN ROUND";
@@ -27,7 +29,7 @@ jQuery('document').ready(() => {
 			, 1000);
 	}
 
-	function lose(userChoice) {
+	function showLose(userChoice) {
 		computerPoint++;
 		computerScore.innerHTML = computerPoint;
 		result.innerHTML = "COMPUTER WIN ROUND";
@@ -37,15 +39,66 @@ jQuery('document').ready(() => {
 			, 1000);
 	}
 
-	function draw(userChoice) {
-		result.innerHTML = "DRAW";
+	function showDraw(userChoice) {
+		result.innerHTML = "DRAW ROUND";
 		document.getElementById(userChoice).classList.add("gray-glow");
 		setTimeout(
 			() => document.getElementById(userChoice).classList.remove("gray-glow")
 			, 1000);
 	}
 
-	function game(userChoice) {
+	function createGameMatch() {
+		if (userPoint == 16 && computerPoint != 16) {
+			result.innerHTML = "USER WIN MATCH";
+			document.querySelector(".result > p").classList.add("winMatch");
+			userVictories++;
+			setTimeout(() => resetScoreBoard(), 1000);
+			setTimeout(() => sleep(1000), 100);
+			console.log("userVictories: " + userVictories);
+		}
+		else if (userPoint != 16 && computerPoint == 16) {
+			result.innerHTML = "COMPUTER WIN MATCH";
+			document.querySelector(".result > p").classList.add("loseMatch");
+			computerVictories++;
+			setTimeout(() => resetScoreBoard(), 1000);
+			setTimeout(() => sleep(1000), 100);
+			console.log("computerVictories: " + computerVictories);
+		}
+	}
+
+	function createEndGame() {
+		if (userVictories == 3 || computerVictories == 3) {
+			document.querySelector(".result > p").classList.remove("winMatch","loseMatch","winGame");
+			document.querySelector(".result > p").classList.add("winGame");
+			if (userVictories == 3 && computerVictories != 3) {
+				result.innerHTML = "USER WIN GAME";
+				setTimeout(() => resetScoreBoard(), 1000);
+				setTimeout(() => sleep(1000), 100);
+				userVictories = 0;
+				computerVictories = 0;
+				console.log("USER WIN GAME");
+			}
+			else if (userVictories != 3 && computerVictories == 3) {
+				result.innerHTML = "COMPUTER WIN GAME";
+				setTimeout(() => resetScoreBoard(), 1000);
+				setTimeout(() => sleep(1000), 100);
+				userVictories = 0;
+				computerVictories = 0;
+				console.log("COMPUTER WIN GAME");
+			}
+		}
+	}
+
+	function resetScoreBoard() {
+		computerScore.innerHTML = 0;
+		userScore.innerHTML = 0;
+		userPoint = 0;
+		computerPoint = 0;
+		result.innerHTML = "";
+		document.querySelector(".result > p").classList.remove("winMatch","loseMatch","winGame");
+	}
+
+	function createGameStrategy(userChoice) {
 		const computerChoice = getComputerChoice();
 
 		switch (userChoice + computerChoice) {
@@ -62,7 +115,7 @@ jQuery('document').ready(() => {
 			console.log("user choice => " + userChoice);
 			console.log("computer choice => " + computerChoice);
 			console.log("USER WIN");
-			win(userChoice);
+			showWin(userChoice);
 			break;
 			case "scissorsrock":
 			case "lizardrock":
@@ -77,7 +130,7 @@ jQuery('document').ready(() => {
 			console.log("user choice => " + userChoice);
 			console.log("computer choice => " + computerChoice);
 			console.log("COMPUTER WIN");
-			lose(userChoice);
+			showLose(userChoice);
 			break;
 			case "scissorsscissors":
 			case "rockrock":
@@ -87,19 +140,27 @@ jQuery('document').ready(() => {
 			console.log("user choice => " + userChoice);
 			console.log("computer choice => " + computerChoice);
 			console.log("DRAW");
-			draw(userChoice);
+			showDraw(userChoice);
 			break;
 
 		}
+		createGameMatch();
+		createEndGame();
 	}
 
-	function main() {
-		rock.addEventListener("click", () => game("rock"));	
-		paper.addEventListener("click", () => game("paper"));		
-		scissors.addEventListener("click", () => game("scissors"));		
-		spock.addEventListener("click", () => game("spock"));		
-		lizard.addEventListener("click", () => game("lizard"));		
+
+	function createIconsListener() {
+		rock.addEventListener("click", () => createGameStrategy("rock"));	
+		paper.addEventListener("click", () => createGameStrategy("paper"));		
+		scissors.addEventListener("click", () => createGameStrategy("scissors"));		
+		spock.addEventListener("click", () => createGameStrategy("spock"));		
+		lizard.addEventListener("click", () => createGameStrategy("lizard"));		
 	}
 
-	main();
+	function sleep(ms) {
+		ms += new Date().getTime();
+		while (new Date() < ms){}
+	} 
+
+	createIconsListener();
 });
