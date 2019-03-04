@@ -26,32 +26,31 @@ jQuery('document').ready(function() {
 	const RIGHT_ARROW = 38;
 	const UP_ARROW = 39;
 	const SPACEBAR = 32;
-
-	var canvas = document.getElementById("gameCanvas");
-	var context = canvas.getContext("2d");
-	var soundLaser = new Sound("resources/sounds/modern/star-wars/blaster.mp3",5,0.5);
-	var soundHit = new Sound("resources/sounds/classic/hit.m4a", 5);
-	var soundExplode = new Sound("resources/sounds/modern/star-wars/jabba-laugh.mp3");
-	var soundThrust = new Sound("resources/sounds/classic/thrust.m4a");
-	var gabeGreetings = new Sound("resources/sounds/modern/gabe-megakills-pack/greeting.mp3");
-	var gabeFirstBlood = new Sound("resources/sounds/modern/gabe-megakills-pack/first-blood.mp3");
-	var gabeGood = new Sound("resources/sounds/modern/gabe-megakills-pack/good.mp3");
-	var gabeDoubleKill = new Sound("resources/sounds/modern/gabe-megakills-pack/double-kill.mp3");
-	var gabeTripleKill = new Sound("resources/sounds/modern/gabe-megakills-pack/triple-kill.mp3");
-	var gabeUltraKill = new Sound("resources/sounds/modern/gabe-megakills-pack/ultra-kill.mp3");
-	var gabeRampage = new Sound("resources/sounds/modern/gabe-megakills-pack/rampage.mp3");
-	var gabeKillingSpree = new Sound("resources/sounds/modern/gabe-megakills-pack/killing-spree.mp3");
-	var gabeDominating = new Sound("resources/sounds/modern/gabe-megakills-pack/dominating.mp3");
-	var gabeMegaKill = new Sound("resources/sounds/modern/gabe-megakills-pack/mega-kill.mp3");
-	var gabeUnstoppable = new Sound("resources/sounds/modern/gabe-megakills-pack/unstoppable.mp3");
-	var gabeWickedSick = new Sound("resources/sounds/modern/gabe-megakills-pack/unreal.mp3");
-	var gabeHolyShit = new Sound("resources/sounds/modern/gabe-megakills-pack/holyshit.mp3");
-	var gabeGaveOver = new Sound("resources/sounds/modern/gabe-megakills-pack/game-over.mp3");
-	var musicBackground = new Music("resources/sounds/classic/music-low.m4a","resources/sounds/classic/music-high.m4a");
-	var roidsLeft, roidsTotal;
-	var level, lives, score, scoreHigh, roids, ship, text, textAlpha;
+	const soundLaser = new Sound("resources/sounds/modern/star-wars/blaster.mp3",5,0.5);
+	const soundHit = new Sound("resources/sounds/classic/hit.m4a", 5);
+	const soundExplode = new Sound("resources/sounds/modern/star-wars/jabba-laugh.mp3");
+	const soundThrust = new Sound("resources/sounds/classic/thrust.m4a");
+	const gabeGreetings = new Sound("resources/sounds/modern/gabe-megakills-pack/greeting.mp3");
+	const gabeFirstBlood = new Sound("resources/sounds/modern/gabe-megakills-pack/first-blood.mp3");
+	const gabeGood = new Sound("resources/sounds/modern/gabe-megakills-pack/good.mp3");
+	const gabeDoubleKill = new Sound("resources/sounds/modern/gabe-megakills-pack/double-kill.mp3");
+	const gabeTripleKill = new Sound("resources/sounds/modern/gabe-megakills-pack/triple-kill.mp3");
+	const gabeUltraKill = new Sound("resources/sounds/modern/gabe-megakills-pack/ultra-kill.mp3");
+	const gabeRampage = new Sound("resources/sounds/modern/gabe-megakills-pack/rampage.mp3");
+	const gabeKillingSpree = new Sound("resources/sounds/modern/gabe-megakills-pack/killing-spree.mp3");
+	const gabeDominating = new Sound("resources/sounds/modern/gabe-megakills-pack/dominating.mp3");
+	const gabeMegaKill = new Sound("resources/sounds/modern/gabe-megakills-pack/mega-kill.mp3");
+	const gabeUnstoppable = new Sound("resources/sounds/modern/gabe-megakills-pack/unstoppable.mp3");
+	const gabeWickedSick = new Sound("resources/sounds/modern/gabe-megakills-pack/unreal.mp3");
+	const gabeHolyShit = new Sound("resources/sounds/modern/gabe-megakills-pack/holyshit.mp3");
+	const gabeGaveOver = new Sound("resources/sounds/modern/gabe-megakills-pack/game-over.mp3");
+	const musicBackground = new Music("resources/sounds/classic/music-low.m4a","resources/sounds/classic/music-high.m4a");
+	let canvas = document.getElementById("gameCanvas");
+	let context = canvas.getContext("2d");
+	let roidsLeft, roidsTotal;
+	let level, lives, score, scoreHigh, roids, ship, text, textAlpha;
 	newGame();
-	var exploding = false;
+	let exploding = false;
 	setInterval(update, 1000 / FPS);
 
 	function update() {
@@ -64,6 +63,7 @@ jQuery('document').ready(function() {
 		drawLives();
 		drawScore();
 		drawHighScore();
+		drawCurrentLevel();
 		checkCollisions();
 		rotateShip();
 		moveShip();
@@ -80,7 +80,7 @@ jQuery('document').ready(function() {
 		score = 0;
 		lives = SHIP_LIVES;
 		ship = newShip();
-		var scoreStr = localStorage.getItem(SAVE_KEY_SCORE);
+		let scoreStr = localStorage.getItem(SAVE_KEY_SCORE);
 		if (scoreStr == null) {
 			scoreHigh = 0;
 		}
@@ -126,15 +126,15 @@ jQuery('document').ready(function() {
 			context.strokeStyle = color;
 			context.lineWidth = SHIP_SIZE / 20;
 			context.beginPath();
-			var noseShip = context.moveTo(
+			let noseShip = context.moveTo(
 				x + 4 / 3 * ship.radiusShip * Math.cos(angleShip),
 				y - 4 / 3 * ship.radiusShip * Math.sin(angleShip)
 				);
-			var rearLeft = context.lineTo(
+			let rearLeft = context.lineTo(
 				x - ship.radiusShip * (2 / 3 * Math.cos(angleShip) + Math.sin(angleShip)),
 				y + ship.radiusShip * (2 / 3 * Math.sin(angleShip) - Math.cos(angleShip))
 				);
-			var rearRight = context.lineTo(
+			let rearRight = context.lineTo(
 				x - ship.radiusShip * (2 / 3 * Math.cos(angleShip) - Math.sin(angleShip)),
 				y + ship.radiusShip * (2 / 3 * Math.sin(angleShip) + Math.cos(angleShip))
 				);
@@ -149,8 +149,8 @@ jQuery('document').ready(function() {
 		roids = [];
 		roidsTotal = (ROIDS_AMOUNT + level) * 7;
 		roidsLeft = roidsTotal;
-		var xRoid,yRoid;
-		for (var i = 0; i < ROIDS_AMOUNT + level; i++) {
+		let xRoid,yRoid;
+		for (let i = 0; i < ROIDS_AMOUNT + level; i++) {
 			do {
 				xRoid = Math.floor(Math.random() * canvas.width);
 				yRoid = Math.floor(Math.random() * canvas.height);
@@ -170,8 +170,8 @@ jQuery('document').ready(function() {
 	}
 
 	function newAsteroid(xRoid,yRoid,radiusRoid) {
-		var lvlMult = 1 + 0.1 * level;
-		var roid = {
+		let lvlMult = 1 + 0.1 * level;
+		let roid = {
 			xRoid:xRoid,
 			yRoid:yRoid,
 			xSpeedRoid: Math.random() * ROIDS_SPEED * lvlMult / FPS * (Math.random() < 0.5 ? 1: -1),
@@ -182,7 +182,7 @@ jQuery('document').ready(function() {
 			offsRoid: []
 		};
 
-		for (var i = 0; i < roid.vertRoid; i++) {
+		for (let i = 0; i < roid.vertRoid; i++) {
 			roid.offsRoid.push(Math.random() * ROIDS_JAG * 2 + 1 - ROIDS_JAG);
 		}
 
@@ -190,9 +190,9 @@ jQuery('document').ready(function() {
 	}
 
 	function destroyAsteroid(index) {
-		var xAst = roids[index].xRoid;
-		var yAst = roids[index].yRoid;
-		var radiusAst = roids[index].radiusRoid;
+		let xAst = roids[index].xRoid;
+		let yAst = roids[index].yRoid;
+		let radiusAst = roids[index].radiusRoid;
 
 		if (radiusAst == Math.ceil(ROIDS_SIZE / 2)) {
 			roids.push(newAsteroid(xAst,yAst,Math.ceil(ROIDS_SIZE / 4)));
@@ -229,8 +229,8 @@ jQuery('document').ready(function() {
 	}
 
 	function drawAsteroids() {
-		var xRoid,yRoid,radiusRoid,angleRoid,vertRoid, offsRoid;
-		for (var i = 0; i < roids.length; i++) {
+		let xRoid,yRoid,radiusRoid,angleRoid,vertRoid, offsRoid;
+		for (let i = 0; i < roids.length; i++) {
 			context.strokeStyle = "slategrey";
 			context.lineWidth = SHIP_SIZE / 20;
 			xRoid = roids[i].xRoid;
@@ -246,7 +246,7 @@ jQuery('document').ready(function() {
 				yRoid + radiusRoid * offsRoid[0] * Math.sin(angleRoid)
 				);
 			//draw polygon
-			for (var j = 1; j < vertRoid; j++) {
+			for (let j = 1; j < vertRoid; j++) {
 				context.lineTo(
 					xRoid + radiusRoid * offsRoid[j] * Math.cos(angleRoid + j * Math.PI * 2 / vertRoid),
 					yRoid + radiusRoid * offsRoid[j] * Math.sin(angleRoid + j * Math.PI * 2 / vertRoid)
@@ -259,7 +259,7 @@ jQuery('document').ready(function() {
 	}
 
 	function drawLasers() {
-		for (var i = 0; i < ship.lasers.length; i++) {
+		for (let i = 0; i < ship.lasers.length; i++) {
 			if (ship.lasers[i].explodeTime == 0) {
 				context.fillStyle = "salmon";
 				context.beginPath();
@@ -305,15 +305,15 @@ jQuery('document').ready(function() {
 		context.strokeStyle = "yellow";
 		context.lineWidth = SHIP_SIZE / 40;
 		context.beginPath();
-		var rearLeft = context.moveTo(
+		let rearLeft = context.moveTo(
 			ship.xShip - ship.radiusShip * (2 / 3 * Math.cos(ship.angleShip) + 0.5 * Math.sin(ship.angleShip)),
 			ship.yShip + ship.radiusShip * (2 / 3 * Math.sin(ship.angleShip) - 0.5 * Math.cos(ship.angleShip))
 			);
-		var rearCenter = context.lineTo(
+		let rearCenter = context.lineTo(
 			ship.xShip - ship.radiusShip * (6 / 3 * Math.cos(ship.angleShip)),
 			ship.yShip + ship.radiusShip * (6 / 3 * Math.sin(ship.angleShip))
 			);
-		var rearRight = context.lineTo(
+		let rearRight = context.lineTo(
 			ship.xShip - ship.radiusShip * (2 / 3 * Math.cos(ship.angleShip) - 0.5 * Math.sin(ship.angleShip)),
 			ship.yShip + ship.radiusShip * (2 / 3 * Math.sin(ship.angleShip) + 0.5 * Math.cos(ship.angleShip))
 			);
@@ -330,9 +330,9 @@ jQuery('document').ready(function() {
 	}
 
 	function getRandomColor() {
-		var letters = '0123456789ABCDEF';
-		var color = '#';
-		for (var i = 0; i < 6; i++) {
+		let letters = '0123456789ABCDEF';
+		let color = '#';
+		for (let i = 0; i < 6; i++) {
 			color += letters[Math.floor(Math.random() * 16)];
 		}
 		return color;
@@ -370,7 +370,7 @@ jQuery('document').ready(function() {
 
 	function checkCollisions() {
 			if (!ship.dead) {
-				for (var i = 0; i < roids.length; i++) {
+				for (let i = 0; i < roids.length; i++) {
 					if (distBetweenPoints(
 						ship.xShip,
 						ship.yShip,
@@ -408,7 +408,7 @@ jQuery('document').ready(function() {
 	}
 
 	function handleEdgeAreaForAsteroids() {
-		for (var i = 0; i < roids.length; i++) {
+		for (let i = 0; i < roids.length; i++) {
 			if (roids[i].xRoid < 0 - roids[i].radiusRoid) {
 				roids[i].xRoid = canvas.width + roids[i].radiusRoid;
 			}
@@ -436,7 +436,7 @@ jQuery('document').ready(function() {
 	}
 
 	function moveAsteroid() {
-		for (var i = 0; i < roids.length; i++) {
+		for (let i = 0; i < roids.length; i++) {
 			roids[i].xRoid += roids[i].xSpeedRoid;
 			roids[i].yRoid += roids[i].ySpeedRoid;
 		}
@@ -457,7 +457,7 @@ jQuery('document').ready(function() {
 	}
 
 	function moveLasers() {
-			for (var i = ship.lasers.length - 1; i >= 0; i--) {
+			for (let i = ship.lasers.length - 1; i >= 0; i--) {
 				if (ship.lasers[i].distance > LASER_DISTANCE * canvas.width) {
 					ship.lasers.splice(i,1);
 					continue;
@@ -499,13 +499,13 @@ jQuery('document').ready(function() {
 	}
 
 	function detectLaserHitOnAsteroid() {
-		var asteroidX,asteroidY,asteroidRadius,laserX,laserY;
-		for (var i = roids.length - 1; i >= 0; i--) {
+		let asteroidX,asteroidY,asteroidRadius,laserX,laserY;
+		for (let i = roids.length - 1; i >= 0; i--) {
 			asteroidX = roids[i].xRoid;
 			asteroidY = roids[i].yRoid;
 			asteroidRadius = roids[i].radiusRoid;
 
-			for (var j = ship.lasers.length - 1; j >= 0; j--) {
+			for (let j = ship.lasers.length - 1; j >= 0; j--) {
 				laserX = ship.lasers[j].xLaser;
 				laserY = ship.lasers[j].yLaser;
 
@@ -535,8 +535,13 @@ jQuery('document').ready(function() {
 	}
 
 	function drawLives() {
-		var lifeColor;
-		for (var i = 0; i < lives; i++) {
+		context.textAlign = "right";
+		context.textBaseline = "middle";
+		context.fillStyle = "white";
+		context.font = "12px dejavu sans mono";
+		context.fillText("Lives: ", canvas.width / 8, SHIP_SIZE / 2.5);
+		let lifeColor;
+		for (let i = 0; i < lives; i++) {
 			if (lifeColor = exploding && i == lives - 1) {
 				lifeColor = "red";
 				exploding = false;	
@@ -545,7 +550,7 @@ jQuery('document').ready(function() {
 				lifeColor =  "green";
 			}
 			drawShip(
-				-20 + SHIP_SIZE + i * SHIP_SIZE * 0.5, 
+				10 + SHIP_SIZE + i * SHIP_SIZE * 0.5, 
 				SHIP_SIZE * 0.4, 0.5 * Math.PI,
 				lifeColor);
 		}
@@ -556,7 +561,7 @@ jQuery('document').ready(function() {
 		context.textBaseline = "middle";
 		context.fillStyle = "white";
 		context.font = "12px dejavu sans mono";
-		context.fillText(score, canvas.width - SHIP_SIZE / 4, SHIP_SIZE / 2.5);
+		context.fillText("SCORE: " + score, canvas.width - SHIP_SIZE / 4, SHIP_SIZE / 2.5);
 	}
 
 	function drawHighScore() {
@@ -564,7 +569,15 @@ jQuery('document').ready(function() {
 		context.textBaseline = "middle";
 		context.fillStyle = "white";
 		context.font = "12px dejavu sans mono";
-		context.fillText("BEST " + scoreHigh, canvas.width / 2, SHIP_SIZE / 2.5);
+		context.fillText("BEST: " + scoreHigh, canvas.width / 2, SHIP_SIZE / 2.5);
+	}
+
+	function drawCurrentLevel() {
+		context.textAlign = "bottom";
+		context.textBaseline = "middle";
+		context.fillStyle = "white";
+		context.font = "12px dejavu sans mono";
+		context.fillText("CurrentLevel: " + (level + 1), canvas.width / 7, canvas.height - 10);
 	}
 
 	document.addEventListener("keydown",keyPressed);
@@ -614,7 +627,7 @@ jQuery('document').ready(function() {
 	function Sound(src,maxStreams = 1, volume = 1.0) {
 		this.streamNum = 0;
 		this.streams = [];
-		for (var i = 0; i < maxStreams; i++) {
+		for (let i = 0; i < maxStreams; i++) {
 			this.streams.push(new Audio(src));
 			this.streams[i].volume = volume;
 		}
