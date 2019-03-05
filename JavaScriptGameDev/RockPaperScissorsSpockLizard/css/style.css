@@ -27,9 +27,6 @@ body {
 	padding: 2px 10px;
 }
 
-.matchesClear > div {
-	background: transparent;
-}
 
 #matchUser1 {
 	position: absolute;
