@@ -1,4 +1,3 @@
-jQuery('document').ready(() => {
 	let userPoint = 0;
 	let computerPoint = 0;
 	let userVictories = 0;
@@ -183,4 +182,3 @@ jQuery('document').ready(() => {
 	} 
 
 	createIconsListener();
-});

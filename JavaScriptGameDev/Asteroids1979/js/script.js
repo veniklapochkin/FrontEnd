@@ -1,4 +1,3 @@
-jQuery('document').ready(function() {
 	const FPS = 25;
 	const SHIP_SIZE = 35;
 	const SHIP_THRUST = 1.5;
@@ -714,5 +713,3 @@ function createSoundsGabe() {
 		gabeHolyShit.play();
 	}
 }
-
-});
