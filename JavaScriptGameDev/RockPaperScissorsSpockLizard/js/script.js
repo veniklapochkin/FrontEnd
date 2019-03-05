@@ -49,19 +49,37 @@ jQuery('document').ready(() => {
 
 	function createGameMatch() {
 		if (userPoint == 16 && computerPoint != 16) {
+			++userVictories;
+			if (userVictories == 1) {
+				document.getElementById("matchUser1").classList.add("winMatch");
+			}
+			else if (userVictories == 2) {
+				document.getElementById("matchUser2").classList.add("winMatch");
+			}
+			else if (userVictories == 3) {
+				document.getElementById("matchUser3").classList.add("winMatch");
+			}
 			result.innerHTML = "USER WIN MATCH";
 			document.querySelector(".result > p").classList.add("winMatch");
-			userVictories++;
 			setTimeout(() => resetScoreBoard(), 1000);
-			setTimeout(() => sleep(1000), 100);
+			setTimeout(() => sleep(1000), 1);
 			console.log("userVictories: " + userVictories);
 		}
 		else if (userPoint != 16 && computerPoint == 16) {
+			++computerVictories;
+			if (computerVictories == 1) {
+				document.getElementById("matchComputer1").classList.add("winMatch");
+			}
+			else if (computerVictories == 2) {
+				document.getElementById("matchComputer2").classList.add("winMatch");
+			}
+			else if (computerVictories == 3) {
+				document.getElementById("matchComputer3").classList.add("winMatch");
+			}
 			result.innerHTML = "COMPUTER WIN MATCH";
 			document.querySelector(".result > p").classList.add("loseMatch");
-			computerVictories++;
 			setTimeout(() => resetScoreBoard(), 1000);
-			setTimeout(() => sleep(1000), 100);
+			setTimeout(() => sleep(1000), 1);
 			console.log("computerVictories: " + computerVictories);
 		}
 	}
@@ -73,17 +91,19 @@ jQuery('document').ready(() => {
 			if (userVictories == 3 && computerVictories != 3) {
 				result.innerHTML = "USER WIN GAME";
 				setTimeout(() => resetScoreBoard(), 1000);
-				setTimeout(() => sleep(1000), 100);
+				setTimeout(() => sleep(1000), 1);
 				userVictories = 0;
 				computerVictories = 0;
+				document.getElementById("matches").classList.add("matchesClear");
 				console.log("USER WIN GAME");
 			}
 			else if (userVictories != 3 && computerVictories == 3) {
 				result.innerHTML = "COMPUTER WIN GAME";
 				setTimeout(() => resetScoreBoard(), 1000);
-				setTimeout(() => sleep(1000), 100);
+				setTimeout(() => sleep(1000), 1);
 				userVictories = 0;
 				computerVictories = 0;
+				document.getElementById("matches").classList.add("matchesClear");
 				console.log("COMPUTER WIN GAME");
 			}
 		}
