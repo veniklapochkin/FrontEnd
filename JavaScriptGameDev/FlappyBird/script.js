@@ -14,13 +14,13 @@ let highScore = 0;
 let pipe = [];
 const GRAVITY = 1.5;
 const SAVE_KEY_SCORE = "highscore";
-bird.src = "resources/images/character/bird.png";
-background.src = "resources/images/environment/background.png";
-field.src = "resources/images/environment/field.png";
-upperPipe.src = "resources/images/environment/upperPipe.png";
-lowerPipe.src = "resources/images/environment/lowerPipe.png";
-flySound.src = "resources/sounds/fly.mp3";
-scoreSound.src = "resources/sounds/score.mp3";
+bird.src = "images/bird.png";
+background.src = "images/background.png";
+field.src = "images/field.png";
+upperPipe.src = "images/upperPipe.png";
+lowerPipe.src = "images/lowerPipe.png";
+flySound.src = "sounds/fly.mp3";
+scoreSound.src = "sounds/score.mp3";
 
 document.addEventListener("keydown",moveUp);
 
