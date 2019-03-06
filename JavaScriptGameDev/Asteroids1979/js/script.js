@@ -1,26 +1,26 @@
 	const FPS = 25;
-	const SHIP_SIZE = 35;
-	const SHIP_THRUST = 1.5;
+	const SHIP_SIZE = 100;
+	const SHIP_THRUST = 4.5;
 	const SHIP_LIVES = 3;
 	const TURN_SPEED = 360;
 	const FRICTION = 0.4;
 	const ROIDS_AMOUNT = 1;
 	const ROIDS_JAG = 0.4;
-	const ROIDS_SIZE = 50;
-	const ROIDS_SPEED = 10;
+	const ROIDS_SIZE = 350;
+	const ROIDS_SPEED = 40;
 	const ROIDS_VERTEX = 10;
 	const ROIDS_POINTS_LARGE = 20;
 	const ROIDS_POINTS_MEDIUM = 50;
 	const ROIDS_POINTS_SMALL = 100;
 	const SAVE_KEY_SCORE = "highscore";
 	const LASER_MAX = 10;
-	const LASER_DISTANCE = 0.3;
+	const LASER_DISTANCE = 0.4;
 	const LASER_SPEED = 500;
 	const LASER_EXPLODE_DURATION = 0.1;
 	const SOUND_ON = true;
 	const MUSIC_ON = true;
 	const TEXT_FADE_TIME = 2.5;
-	const TEXT_SIZE = 30;
+	const TEXT_SIZE = 50;
 	const LEFT_ARROW = 37;
 	const RIGHT_ARROW = 38;
 	const UP_ARROW = 39;
@@ -45,6 +45,8 @@
 	const gabeGaveOver = new Sound("resources/sounds/modern/gabe-megakills-pack/game-over.mp3");
 	const musicBackground = new Music("resources/sounds/classic/music-low.m4a","resources/sounds/classic/music-high.m4a");
 	let canvas = document.getElementById("gameCanvas");
+	canvas.width = window.innerWidth - 50;
+	canvas.height = window.innerHeight - 50;
 	let context = canvas.getContext("2d");
 	let roidsLeft, roidsTotal;
 	let level, lives, score, scoreHigh, roids, ship, text, textAlpha;
@@ -530,13 +532,13 @@ function createCurrentLevelTitle() {
 function createCommonTextConfigurations() {
 	context.textBaseline = "middle";
 	context.fillStyle = "white";
-	context.font = "12px dejavu sans mono";
+	context.font = TEXT_SIZE + "px dejavu sans mono";
 }
 
 function drawLives() {
 	context.textAlign = "right";
 	createCommonTextConfigurations();
-	context.fillText("Lives: ", canvas.width / 8, SHIP_SIZE / 2.5);
+	context.fillText("Lives: ", canvas.width / 10, canvas.height / 4 - 150);
 	let lifeColor;
 	for (let i = 0; i < lives; i++) {
 		if (lifeColor = exploding && i == lives - 1) {
@@ -547,8 +549,8 @@ function drawLives() {
 			lifeColor =  "green";
 		}
 		drawShip(
-			10 + SHIP_SIZE + i * SHIP_SIZE * 0.5, 
-			SHIP_SIZE * 0.4, 0.5 * Math.PI,
+			canvas.width / 10 + SHIP_SIZE + i * SHIP_SIZE * 0.5, 
+			canvas.height / 4 - 150, 0.5 * Math.PI,
 			lifeColor);
 	}
 }
@@ -556,19 +558,19 @@ function drawLives() {
 function drawScore() {
 	context.textAlign = "right";
 	createCommonTextConfigurations();
-	context.fillText("SCORE: " + score, canvas.width - SHIP_SIZE / 4, SHIP_SIZE / 2.5);
+	context.fillText("SCORE: " + score, canvas.width - SHIP_SIZE / 4, canvas.height / 4 - 150);
 }
 
 function drawHighScore() {
 	context.textAlign = "center";
 	createCommonTextConfigurations();
-	context.fillText("BEST: " + scoreHigh, canvas.width / 2, SHIP_SIZE / 2.5);
+	context.fillText("BEST: " + scoreHigh, canvas.width / 2, canvas.height / 4 - 150);
 }
 
 function drawCurrentLevel() {
 	context.textAlign = "bottom";
 	createCommonTextConfigurations();
-	context.fillText("CurrentLevel: " + (level + 1), canvas.width / 7, canvas.height - 10);
+	context.fillText("CurrentLevel: " + (level + 1), canvas.width / 10, canvas.height - 50);
 }
 
 document.addEventListener("keydown",pressKey);
