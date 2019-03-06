@@ -1,0 +1,9 @@
+* {
+	margin:0;
+	padding: 0;
+	box-sizing: :border-box;
+}
+ #gameCanvas {
+ 	width: 228px;
+ 	height: 512px;
+ }
