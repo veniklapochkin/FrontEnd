@@ -14,6 +14,9 @@ let highScore = 0;
 let pipe = [];
 const GRAVITY = 1.5;
 const SAVE_KEY_SCORE = "highscore";
+
+canvas.width = window.innerWidth - 50;
+canvas.height = window.innerHeight - 50;
 bird.src = "resources/images/character/bird.png";
 background.src = "resources/images/environment/background.png";
 field.src = "resources/images/environment/field.png";
@@ -36,7 +39,7 @@ function moveUp(){
 }
 
 function draw(){
-    contex.drawImage(background,0,0); 
+    contex.drawImage(background,0,0,canvas.width,canvas.height); 
     let scoreStr = localStorage.getItem(SAVE_KEY_SCORE);
     if (scoreStr == null) {
         highScore = 0;
@@ -46,12 +49,12 @@ function draw(){
     }
     for(let i = 0; i < pipe.length; i++){
         let gap = upperPipe.height+90;
-        contex.drawImage(upperPipe,pipe[i].x,pipe[i].y);
-        contex.drawImage(lowerPipe,pipe[i].x,pipe[i].y+gap);
+        contex.drawImage(upperPipe,pipe[i].x,pipe[i].y, upperPipe.width, upperPipe.height) * 2;
+        contex.drawImage(lowerPipe,pipe[i].x,pipe[i].y+gap, lowerPipe.width, lowerPipe.height * 2);
 
         pipe[i].x--;
         
-        if( pipe[i].x == 125 ){
+        if( pipe[i].x == canvas.width - 250){
             pipe.push({
                 x : canvas.width,
                 y : Math.floor(Math.random()*upperPipe.height)-upperPipe.height
@@ -76,7 +79,7 @@ function draw(){
 }
 
 yBird += GRAVITY;
-contex.drawImage(field,0,canvas.height - field.height);    
+contex.drawImage(field,0,canvas.height - field.height,canvas.width,canvas.height / 4);    
 contex.drawImage(bird,xBird,yBird);
 drawScore();
 drawHighScore(); 
