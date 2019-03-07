@@ -73,7 +73,8 @@ function draw(){
         if( xBird + bird.width >= pipe[i].x && 
             xBird <= pipe[i].x + upperPipe.width &&
             (yBird <= pipe[i].y + upperPipe.height || yBird+bird.height >= pipe[i].y+gap)
-            || yBird + bird.height >=  canvas.height - field.height) {
+            || yBird + bird.height >=  canvas.height - field.height
+            || yBird < 0) {
             location.reload(); 
     }
 
