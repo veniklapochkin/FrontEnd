@@ -1,6 +1,8 @@
 let canvas = document.getElementById("gameCanvas");
 let contex = canvas.getContext("2d");
 let bird = new Image();
+let birdDown = new Image();
+let birdUp = new Image();
 let background = new Image();
 let field = new Image();
 let upperPipe = new Image();
@@ -18,6 +20,8 @@ const SAVE_KEY_SCORE = "highscore";
 canvas.width = window.innerWidth - 50;
 canvas.height = window.innerHeight - 50;
 bird.src = "resources/images/character/bird.png";
+birdDown.src = "resources/images/character/bird-down.png";
+birdUp.src = "resources/images/character/bird-up.png";
 background.src = "resources/images/environment/background.png";
 field.src = "resources/images/environment/field.png";
 upperPipe.src = "resources/images/environment/upperPipe.png";
@@ -26,7 +30,7 @@ flySound.src = "resources/sounds/fly.mp3";
 scoreSound.src = "resources/sounds/score.mp3";
 
 document.addEventListener("keydown",moveUp);
-
+document.addEventListener("keyup",moveDown);
 pipe[0] = {
     x : canvas.width,
     y : 0
@@ -34,8 +38,13 @@ pipe[0] = {
 
 
 function moveUp(){
+    bird = birdUp;
     yBird -= 25;
     flySound.play();
+}
+
+function moveDown() {
+    bird = birdDown;
 }
 
 function draw(){
