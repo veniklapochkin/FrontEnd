@@ -31,91 +31,98 @@ scoreSound.src = "resources/sounds/score.mp3";
 
 document.addEventListener("keydown",moveUp);
 document.addEventListener("keyup",moveDown);
+
 pipe[0] = {
-    x : canvas.width,
-    y : 0
+  x : canvas.width,
+  y : 0
 };
 
 
-function moveUp(){
-    bird = birdUp;
-    yBird -= 25;
-    flySound.play();
+function moveUp() {
+ bird = birdUp;
+ yBird -= 25;
+
+ flySound.play();
 }
 
 function moveDown() {
-    bird = birdDown;
+  bird = birdDown;
 }
 
-function draw(){
-    contex.drawImage(background,0,0,canvas.width,canvas.height); 
-    let scoreStr = localStorage.getItem(SAVE_KEY_SCORE);
-    if (scoreStr == null) {
-        highScore = 0;
-    }
-    else {
-        highScore = parseInt(scoreStr);
-    }
-    for(let i = 0; i < pipe.length; i++){
-        let gap = upperPipe.height+90;
-        contex.drawImage(upperPipe,pipe[i].x,pipe[i].y, upperPipe.width, upperPipe.height) * 2;
-        contex.drawImage(lowerPipe,pipe[i].x,pipe[i].y+gap, lowerPipe.width, lowerPipe.height * 2);
+function draw() {
+  contex.drawImage(background,0,0,canvas.width,canvas.height);
 
-        pipe[i].x--;
+  for(let i = 0; i < pipe.length; i++) {
+    let gap = upperPipe.height+80;
+
+    contex.drawImage(upperPipe,pipe[i].x,pipe[i].y, upperPipe.width, upperPipe.height) * 2;
+    contex.drawImage(lowerPipe,pipe[i].x,pipe[i].y+gap, lowerPipe.width, lowerPipe.height * 2);
+
+    pipe[i].x--;
         
-        if( pipe[i].x == canvas.width - 250){
-            pipe.push({
-                x : canvas.width,
-                y : Math.floor(Math.random()*upperPipe.height)-upperPipe.height
-            }); 
-        }
+    if(pipe[i].x == canvas.width - 250) {
+      pipe.push({
+        x : canvas.width,
+        y : Math.floor(Math.random()*upperPipe.height)-upperPipe.height
+      }); 
+    }
         
-        if( xBird + bird.width >= pipe[i].x && 
-            xBird <= pipe[i].x + upperPipe.width &&
-            (yBird <= pipe[i].y + upperPipe.height || yBird+bird.height >= pipe[i].y+gap)
-            || yBird + bird.height >=  canvas.height - field.height
-            || yBird < 0) {
-            location.reload(); 
+    if(xBird + bird.width >= pipe[i].x && 
+      xBird <= pipe[i].x + upperPipe.width && 
+      (yBird <= pipe[i].y + upperPipe.height || yBird+bird.height >= pipe[i].y+gap)
+      || yBird + bird.height >=  canvas.height - field.height
+      || yBird < 0) {
+        location.reload(); 
     }
 
     if(pipe[i].x == 5){
-        score++;
-        if (score > highScore) {
-            highScore = score;
-            localStorage.setItem(SAVE_KEY_SCORE,highScore);
-        }
-        scoreSound.play();
+      score++;
+    scoreSound.play();
     }
+  }
+
+  yBird += GRAVITY;
+
+  contex.drawImage(field,0,canvas.height - field.height,canvas.width,canvas.height / 4);    
+  contex.drawImage(bird,xBird,yBird);
+  drawScore();
+  drawHighScore(); 
+  saveHighScore();
+  requestAnimationFrame(draw);
 }
 
-yBird += GRAVITY;
-contex.drawImage(field,0,canvas.height - field.height,canvas.width,canvas.height / 4);    
-contex.drawImage(bird,xBird,yBird);
-drawScore();
-drawHighScore(); 
-requestAnimationFrame(draw);
-}
+function saveHighScore() {
+  let scoreStr = localStorage.getItem(SAVE_KEY_SCORE);
+  
+  if (scoreStr == null) {
+    highscore = 0;
+  } else {
+    highscore = parseInt(scoreStr);
+  }
 
-function createLocalStorage() {
-    let scoreStr = localStorage.getItem(SAVE_KEY_SCORE);
-    if (scoreStr == null) {
-        highscore = 0;
+  if(score > highScore) {
+   highScore = score;
+
+   try {
+     localStorage.setItem(SAVE_KEY_SCORE,highScore);
+   } catch (e) {
+      if (e == QUOTA_EXCEEDED_ERR) {
+        alert('limit exceed');
+      }
     }
-    else {
-        highscore = parseInt(scoreStr);
-    }
+  }
 }
 
 function drawScore() {
-    contex.fillStyle = "#000";
-    contex.font = "20px Verdana";
-    contex.fillText("Score : "+ score,10,canvas.height-20);
+  contex.fillStyle = "#000";
+  contex.font = "20px Verdana";
+  contex.fillText("Score : "+ score,10,canvas.height-20);
 }
 
 function drawHighScore() {
-    contex.fillStyle = "#000";
-    contex.font = "20px Verdana";
-    contex.fillText("HighScore : "+ highScore,canvas.width-150,canvas.height-20);
+  contex.fillStyle = "#000";
+  contex.font = "20px Verdana";
+  contex.fillText("HighScore : "+ highScore,canvas.width-150,canvas.height-20);
 }
 
 draw();
