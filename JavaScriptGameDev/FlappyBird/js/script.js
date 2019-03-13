@@ -116,13 +116,13 @@ function saveHighScore() {
 function drawScore() {
   contex.fillStyle = "#000";
   contex.font = "20px Verdana";
-  contex.fillText("Score : "+ score,10,canvas.height-20);
+  contex.fillText(`Score ${score}`,10,canvas.height-20);
 }
 
 function drawHighScore() {
   contex.fillStyle = "#000";
   contex.font = "20px Verdana";
-  contex.fillText("HighScore : "+ highScore,canvas.width-150,canvas.height-20);
+  contex.fillText(`HighScore ${highScore}`,canvas.width-150,canvas.height-20);
 }
 
 draw();
