@@ -25,25 +25,25 @@ const LEFT_ARROW = 37;
 const RIGHT_ARROW = 38;
 const UP_ARROW = 39;
 const SPACEBAR = 32;
-const soundLaser = new Sound("resources/sounds/modern/star-wars/blaster.mp3",5,0.5);
-const soundHit = new Sound("resources/sounds/classic/hit.m4a", 5);
-const soundExplode = new Sound("resources/sounds/modern/star-wars/jabba-laugh.mp3");
-const soundThrust = new Sound("resources/sounds/classic/thrust.m4a");
-const gabeGreetings = new Sound("resources/sounds/modern/gabe-megakills-pack/greeting.mp3");
-const gabeFirstBlood = new Sound("resources/sounds/modern/gabe-megakills-pack/first-blood.mp3");
-const gabeGood = new Sound("resources/sounds/modern/gabe-megakills-pack/good.mp3");
-const gabeDoubleKill = new Sound("resources/sounds/modern/gabe-megakills-pack/double-kill.mp3");
-const gabeTripleKill = new Sound("resources/sounds/modern/gabe-megakills-pack/triple-kill.mp3");
-const gabeUltraKill = new Sound("resources/sounds/modern/gabe-megakills-pack/ultra-kill.mp3");
-const gabeRampage = new Sound("resources/sounds/modern/gabe-megakills-pack/rampage.mp3");
-const gabeKillingSpree = new Sound("resources/sounds/modern/gabe-megakills-pack/killing-spree.mp3");
-const gabeDominating = new Sound("resources/sounds/modern/gabe-megakills-pack/dominating.mp3");
-const gabeMegaKill = new Sound("resources/sounds/modern/gabe-megakills-pack/mega-kill.mp3");
-const gabeUnstoppable = new Sound("resources/sounds/modern/gabe-megakills-pack/unstoppable.mp3");
-const gabeWickedSick = new Sound("resources/sounds/modern/gabe-megakills-pack/unreal.mp3");
-const gabeHolyShit = new Sound("resources/sounds/modern/gabe-megakills-pack/holyshit.mp3");
-const gabeGaveOver = new Sound("resources/sounds/modern/gabe-megakills-pack/game-over.mp3");
-const musicBackground = new Music("resources/sounds/classic/music-low.m4a","resources/sounds/classic/music-high.m4a");
+const SOUND_LASER = new Sound("resources/sounds/modern/star-wars/blaster.mp3",5,0.5);
+const SOUND_HIT = new Sound("resources/sounds/classic/hit.m4a", 5);
+const SOUND_EXPLODE = new Sound("resources/sounds/modern/star-wars/jabba-laugh.mp3");
+const SOUND_THRUST = new Sound("resources/sounds/classic/thrust.m4a");
+const GABE_GREETINGS = new Sound("resources/sounds/modern/gabe-megakills-pack/greeting.mp3");
+const GABE_FIRST_BLOOD = new Sound("resources/sounds/modern/gabe-megakills-pack/first-blood.mp3");
+const GABE_GOOD = new Sound("resources/sounds/modern/gabe-megakills-pack/good.mp3");
+const GABE_DOUBLE_KILL = new Sound("resources/sounds/modern/gabe-megakills-pack/double-kill.mp3");
+const GABE_TRIPLE_KILL = new Sound("resources/sounds/modern/gabe-megakills-pack/triple-kill.mp3");
+const GABE_ULTRA_KILL = new Sound("resources/sounds/modern/gabe-megakills-pack/ultra-kill.mp3");
+const GABE_RAMPAGE = new Sound("resources/sounds/modern/gabe-megakills-pack/rampage.mp3");
+const GABE_KILLING_SPREE = new Sound("resources/sounds/modern/gabe-megakills-pack/killing-spree.mp3");
+const GABE_DOMINATING = new Sound("resources/sounds/modern/gabe-megakills-pack/dominating.mp3");
+const GABE_MEGA_KILL = new Sound("resources/sounds/modern/gabe-megakills-pack/mega-kill.mp3");
+const GABE_UNSTOPPABLE = new Sound("resources/sounds/modern/gabe-megakills-pack/unstoppable.mp3");
+const GABE_WICKED_SICK = new Sound("resources/sounds/modern/gabe-megakills-pack/unreal.mp3");
+const GABE_HOLY_SHIT = new Sound("resources/sounds/modern/gabe-megakills-pack/holyshit.mp3");
+const GABE_GAME_OVER = new Sound("resources/sounds/modern/gabe-megakills-pack/game-over.mp3");
+const MUSIC_BACKGROUND = new Music("resources/sounds/classic/music-low.m4a","resources/sounds/classic/music-high.m4a");
 let canvas = document.getElementById("gameCanvas");
 canvas.width = window.innerWidth - 50;
 canvas.height = window.innerHeight - 50;
@@ -93,7 +93,7 @@ function createNewGame() {
 }
 
 function createNewLever() {
-  text = "Level " + (level + 1);
+  text = `Level ${level + 1}`;
   textAlpha = 1.0;
   createAsteroids();
   createSoundsGabe();
@@ -203,7 +203,7 @@ function destroyAsteroid(index) {
 		score += ROIDS_POINTS_LARGE;
 
 		if (level == 0) {
-			gabeFirstBlood.play();
+			GABE_FIRST_BLOOD.play();
 		}
 	} else if(radiusAst == Math.ceil(ROIDS_SIZE / 4)) {
 		roids.push(createNewAsteroid(xAst,yAst,Math.ceil(ROIDS_SIZE / 8)));
@@ -218,11 +218,11 @@ function destroyAsteroid(index) {
       localStorage.setItem(SAVE_KEY_SCORE,scoreHigh);
 	}
 
-	soundHit.play();
+	SOUND_HIT.play();
 	roids.splice(index,1);
 
 	roidsLeft--;
-	musicBackground.setAsteroidRatio(roidsLeft == 0 ? 1: roidsLeft/ roidsTotal);
+	MUSIC_BACKGROUND.setAsteroidRatio(roidsLeft == 0 ? 1: roidsLeft/ roidsTotal);
 
 	if (roids.length == 0) {
 	  level++;
@@ -361,15 +361,15 @@ function explodeShip() {
   ship.thrusting = false;
   context.fillStyle = "darkred";
   context.fill();
-  soundExplode.play();
+  SOUND_EXPLODE.play();
 }
 
 function gameOver() {
   ship.dead = true;
-  musicBackground.setAsteroidRatio(1);
+  MUSIC_BACKGROUND.setAsteroidRatio(1);
   text = "Game Over";
   textAlpha = 1.0;
-  gabeGaveOver.play();
+  GABE_GAME_OVER.play();
 }
 
 function checkCollisions() {
@@ -445,11 +445,11 @@ function thrustShip() {
 	ship.thrust.xThrust += SHIP_THRUST * Math.cos(ship.angleShip) / FPS;
 	ship.thrust.yThrust -= SHIP_THRUST * Math.sin(ship.angleShip) / FPS;
 	drawThruster();
-	soundThrust.play();
+	SOUND_THRUST.play();
   } else {
 	ship.thrust.xThrust -= FRICTION * ship.thrust.xThrust / FPS;
 	ship.thrust.yThrust -= FRICTION * ship.thrust.yThrust / FPS;
-	soundThrust.stop();
+	SOUND_THRUST.stop();
   }
 }
 
@@ -487,7 +487,7 @@ function shootLaser() {
 	  explodeTime:0
 	});
 
-	soundLaser.play();
+	SOUND_LASER.play();
   }
 
   ship.canShoot = false;
@@ -518,8 +518,8 @@ function createCurrentLevelTitle() {
   if (textAlpha >= 0) {
 	context.textAlign = "center";
 	context.textBaseline = "middle";
-	context.fillStyle = "rgba(255,255,255, " + textAlpha + ")";
-	context.font = "small-caps " + TEXT_SIZE + "px dejavu sans mono";
+	context.fillStyle = `rgba(255,255,255, ${textAlpha})`;
+	context.font = `small-caps ${TEXT_SIZE}px dejavu sans mono`;
 	context.fillText(text, canvas.width/2, canvas.height * 0.75);
 	textAlpha -= (1.0 / TEXT_FADE_TIME / FPS);
   } else if (ship.dead) {
@@ -530,7 +530,7 @@ function createCurrentLevelTitle() {
 function createCommonTextConfigurations() {
   context.textBaseline = "middle";
   context.fillStyle = "white";
-  context.font = TEXT_SIZE + "px dejavu sans mono";
+  context.font = `${TEXT_SIZE} px dejavu sans mono`;
 }
 
 function drawLives() {
@@ -557,19 +557,19 @@ function drawLives() {
 function drawScore() {
   context.textAlign = "right";
   createCommonTextConfigurations();
-  context.fillText("SCORE: " + score, canvas.width - SHIP_SIZE / 4, canvas.height / 4 - 150);
+  context.fillText(`SCORE: ${score}`, canvas.width - SHIP_SIZE / 4, canvas.height / 4 - 150);
 }
 
 function drawHighScore() {
   context.textAlign = "center";
   createCommonTextConfigurations();
-  context.fillText("BEST: " + scoreHigh, canvas.width / 2, canvas.height / 4 - 150);
+  context.fillText(`BEST: ${scoreHigh}`, canvas.width / 2, canvas.height / 4 - 150);
 }
 
 function drawCurrentLevel() {
   context.textAlign = "bottom";
   createCommonTextConfigurations();
-  context.fillText("CurrentLevel: " + (level + 1), canvas.width / 10, canvas.height - 50);
+  context.fillText(`CurrentLevel: ${level + 1}`, canvas.width / 10, canvas.height - 50);
 }
 
 document.addEventListener("keydown",pressKey);
@@ -670,33 +670,33 @@ function Music(srcLow, srcHigh) {
 }
 
 function createMusicTick() {
-  musicBackground.tick();
+  MUSIC_BACKGROUND.tick();
 }
 
 function createSoundsGabe() {
 	if (level == 0) {
-		gabeGreetings.play();
+		GABE_GREETINGS.play();
 	} else if (level == 1) {
-		gabeGood.play();
+		GABE_GOOD.play();
 	} else if (level == 2) {
-		gabeDoubleKill.play();
+		GABE_DOUBLE_KILL.play();
 	} else if (level == 3) {
-		gabeTripleKill.play();
+		GABE_TRIPLE_KILL.play();
 	} else if (level == 4) { 
-		gabeUltraKill.play();
+		GABE_ULTRA_KILL.play();
 	} else if (level == 5) { 
-		gabeRampage.play();
+		GABE_RAMPAGE.play();
 	} else if (level == 6) { 
-		gabeKillingSpree.play();
+		GABE_KILLING_SPREE.play();
 	} else if (level == 7) { 
-		gabeDominating.play();
+		GABE_DOMINATING.play();
 	} else if (level == 8) { 
-		gabeMegaKill.play();
+		GABE_MEGA_KILL.play();
 	} else if (level == 9) { 
-		gabeUnstoppable.play();
+		GABE_UNSTOPPABLE.play();
 	} else if (level == 10) { 
-		gabeWickedSick.play();
+		GABE_WICKED_SICK.play();
 	} else { 
-		gabeHolyShit.play();
+		GABE_HOLY_SHIT.play();
 	}
 }
