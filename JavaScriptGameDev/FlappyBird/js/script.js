@@ -12,11 +12,10 @@ let scoreSound = new Audio();
 let xBird = 10;
 let yBird = 150;
 let score = 0;
-let highScore = 0;
 let pipe = [];
 const GRAVITY = 1.5;
 const SAVE_KEY_SCORE = "highscore";
-
+let highScore = localStorage.getItem(SAVE_KEY_SCORE);
 canvas.width = window.innerWidth - 50;
 canvas.height = window.innerHeight - 50;
 bird.src = "resources/images/character/bird.png";
@@ -53,7 +52,7 @@ function draw() {
   contex.drawImage(background,0,0,canvas.width,canvas.height);
 
   for(let i = 0; i < pipe.length; i++) {
-    let gap = upperPipe.height+80;
+    let gap = upperPipe.height+200;
 
     contex.drawImage(upperPipe,pipe[i].x,pipe[i].y, upperPipe.width, upperPipe.height) * 2;
     contex.drawImage(lowerPipe,pipe[i].x,pipe[i].y+gap, lowerPipe.width, lowerPipe.height * 2);
@@ -85,15 +84,14 @@ function draw() {
 
   contex.drawImage(field,0,canvas.height - field.height,canvas.width,canvas.height / 4);    
   contex.drawImage(bird,xBird,yBird);
+  saveHighScore();
   drawScore();
   drawHighScore(); 
-  saveHighScore();
   requestAnimationFrame(draw);
 }
 
 function saveHighScore() {
   let scoreStr = localStorage.getItem(SAVE_KEY_SCORE);
-  
   if (scoreStr == null) {
     highscore = 0;
   } else {
@@ -102,7 +100,6 @@ function saveHighScore() {
 
   if(score > highScore) {
    highScore = score;
-
    try {
      localStorage.setItem(SAVE_KEY_SCORE,highScore);
    } catch (e) {
@@ -126,6 +123,7 @@ function drawHighScore() {
 }
 
 draw();
+
 
 
 
