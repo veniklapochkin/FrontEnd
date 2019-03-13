@@ -67,7 +67,7 @@ function createGameMatch() {
     result.innerHTML = "USER WIN MATCH";
 	setTimeout(() => resetScoreBoard(), 1000);
 	setTimeout(() => sleep(1000), 1);
-	console.log("userVictories: " + userVictories);
+	console.log(`userVictories: ${userVictories}`);
 	} else if (userPoint != 16 && computerPoint == 16) {
 	  ++computerVictories;
 			
@@ -84,7 +84,7 @@ function createGameMatch() {
 	  result.innerHTML = "COMPUTER WIN MATCH";
 	  setTimeout(() => resetScoreBoard(), 1000);
 	  setTimeout(() => sleep(1000), 1);
-	  console.log("computerVictories: " + computerVictories);
+	  console.log(`computerVictories: ${computerVictories}`);
 	  }
     }
 
@@ -142,8 +142,8 @@ function createGameStrategy(userChoice) {
 	case "spokerock":
 	case "scissorspaper":
 	case "scissorslizard":
-	console.log("user choice => " + userChoice);
-	console.log("computer choice => " + computerChoice);
+	console.log(`user choice => ${userChoice}`);
+	console.log(`computer choice => ${computerChoice}`);
 	console.log("USER WIN");
 	showWin(userChoice);
 	break;
@@ -157,8 +157,8 @@ function createGameStrategy(userChoice) {
 	case "rockspoke":
 	case "paperscissors":
 	case "lizardscissors":
-	console.log("user choice => " + userChoice);
-	console.log("computer choice => " + computerChoice);
+	console.log(`user choice => ${userChoice}`);
+	console.log(`computer choice => ${computerChoice}`);
 	console.log("COMPUTER WIN");
 	showLose(userChoice);
 	break;
@@ -167,8 +167,8 @@ function createGameStrategy(userChoice) {
 	case "paperpaper":
 	case "spockspock":
 	case "lizardlizard":
-	console.log("user choice => " + userChoice);
-	console.log("computer choice => " + computerChoice);
+	console.log(`user choice => ${userChoice}`);
+	console.log(`computer choice => ${computerChoice}`);
 	console.log("DRAW");
 	showDraw(userChoice);
 	break;
