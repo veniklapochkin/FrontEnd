@@ -52,7 +52,7 @@ function draw() {
   contex.drawImage(background,0,0,canvas.width,canvas.height);
 
   for(let i = 0; i < pipe.length; i++) {
-    let gap = upperPipe.height+200;
+    let gap = upperPipe.height+100;
 
     contex.drawImage(upperPipe,pipe[i].x,pipe[i].y, upperPipe.width, upperPipe.height) * 2;
     contex.drawImage(lowerPipe,pipe[i].x,pipe[i].y+gap, lowerPipe.width, lowerPipe.height * 2);
