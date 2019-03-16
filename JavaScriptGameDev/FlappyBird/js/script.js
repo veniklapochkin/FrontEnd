@@ -16,6 +16,7 @@ let pipe = [];
 const GRAVITY = 1.5;
 const SAVE_KEY_SCORE = "highscore";
 let highScore = localStorage.getItem(SAVE_KEY_SCORE);
+
 canvas.width = window.innerWidth - 50;
 canvas.height = window.innerHeight - 50;
 bird.src = "resources/images/character/bird.png";
@@ -91,12 +92,9 @@ function draw() {
 }
 
 function saveHighScore() {
-  let scoreStr = localStorage.getItem(SAVE_KEY_SCORE);
-  if (scoreStr == null) {
-    highscore = 0;
-  } else {
-    highscore = parseInt(scoreStr);
-  }
+  if (highScore == null) {
+    highScore = 0;
+  } 
 
   if(score > highScore) {
    highScore = score;
