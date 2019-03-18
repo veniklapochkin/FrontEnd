@@ -22,19 +22,21 @@ const rightArrow = 39;
 const downArrow = 40;
 const box = 35;
 let snake = [];
-let d;
+let direction;
 let score = 0;
+let highscore = 0;
 let fruits = [apple,orange,cherry,strawberry,banana,pineapple];
 let randomFruit = fruits[Math.floor(Math.random() * fruits.length)];
 
 snake[0] = {
-	x: 10 * box,
+	x: 9 * box,
 	y: 10 * box
 };
 
+console.log(snake[0]);
 let food = {
-	x :Math.floor(Math.random()*50 + 1.5) * box,
-	y :Math.floor(Math.random()*21 + 1.5) * box
+	x :Math.floor(Math.random()*50) * box,
+	y :Math.floor(Math.random()*18) * box
 };
 console.log(food);
 
@@ -56,21 +58,21 @@ leftSound.src = "resources/sounds/left.mp3";
 rightSound.src = "resources/sounds/right.mp3";
 upSound.src = "resources/sounds/up.mp3";
 eatSound.src = "resources/sounds/eat.mp3";
-document.addEventListener("keydown" , direction);
+document.addEventListener("keydown" , controls);
 
-function direction(event) {
+function controls(event) {
 	let key = event.keyCode;
-	if (key == leftArrow && d != "RIGHT") {
-		d = "LEFT";
+	if (key == leftArrow && direction != "RIGHT") {
+		direction = "LEFT";
 		leftSound.play();
-	} else if (key == upArrow && d != "DOWN") {
-		d = "UP";
+	} else if (key == upArrow && direction != "DOWN") {
+		direction = "UP";
 		upSound.play();
-	} else if (key == rightArrow && d != "LEFT") {
-		d = "RIGHT";
+	} else if (key == rightArrow && direction != "LEFT") {
+		direction = "RIGHT";
 		rightSound.play();
-	} else if (key == downArrow && d != "UP") {
-		d = "DOWN";
+	} else if (key == downArrow && direction != "UP") {
+		direction = "DOWN";
 		downSound.play();
 	}
 }
@@ -86,7 +88,7 @@ function checkCollision(head,array){
 
 function draw() {
 	contex.drawImage(background,0,0,canvas.width,canvas.height);
-	contex.drawImage(randomFruit,food.x,food.y);
+	contex.drawImage(randomFruit,food.x,food.y,100,100);
 	for(let i = 0; i < snake.length; i++) {
 		if (i == 0) {
 			contex.drawImage(headSnake,snake[i].x,snake[i].y);
@@ -103,13 +105,14 @@ function draw() {
 	let snakeX = snake[0].x;
 	let snakeY = snake[0].y;
 
-	if (d == "LEFT") snakeX -= box;
-	if (d == "UP") snakeY -= box;
-	if (d == "RIGHT") snakeX += box;
-	if (d == "DOWN") snakeY += box;
+	if (direction == "LEFT") snakeX -= box;
+	if (direction == "UP") snakeY -= box;
+	if (direction == "RIGHT") snakeX += box;
+	if (direction == "DOWN") snakeY += box;
 
-		if (snakeX == food.x && snakeY == food.y) {
+	if (snakeX == food.x && snakeY == food.y) {
 		score++;
+
 		eatSound.play();
 		food = {
 			x :Math.floor(Math.random()*50 + 1.5) * box,
@@ -124,15 +127,34 @@ function draw() {
 		y : snakeY
 	}
 
-	if (snakeX < 0 || snakeX > box * 51 || snakeY < 0 || snakeY > box*24 || checkCollision(newHead,snake)) {
-		deadSound.play(); 
-		setTimeout(() => location.reload(), 300);
+	if (snakeX < 0 || snakeX > box * 51 || snakeY < box * 2 || snakeY > box*24 || checkCollision(newHead,snake)) {
+		deadSound.play();
+		clearInterval(game); 
+		setTimeout(() => location.reload(), 1000);
 	}
 	snake.unshift(newHead);
 
-	contex.fillStyle = "white";
-	contex.font = "45px Changa one";
-	contex.fillText(score,2*box, 1.6 * box);
+	drawScore();
+	drawHighScore();
+	saveHighScore();
 }
 
-setInterval(draw,100);
+function saveHighScore() {
+  if(score > highscore) {
+   highscore = score;
+  }
+}
+
+function drawScore() {
+	contex.fillStyle = "white";
+	contex.font = "60px Changa one";
+	contex.fillText(score, canvas.width / 6, canvas.height / 12);
+}
+
+function drawHighScore() {
+	contex.fillStyle = "white";
+	contex.font = "60px Changa one";
+	contex.fillText(highscore, canvas.width - canvas.width / 12, canvas.height / 12);
+}
+
+let game = setInterval(draw,100);
