@@ -1,5 +1,5 @@
-let canvas = document.getElementById("gameCanvas");
-let contex = canvas.getContext("2d");
+const canvas = document.getElementById("gameCanvas");
+const contex = canvas.getContext("2d");
 const background = new Image();
 const headSnake = new Image();
 const bodySnake = new Image();
@@ -34,12 +34,13 @@ snake[0] = {
 	y: 10 * box
 };
 
-console.log(snake[0]);
+let snakeX = snake[0].x;
+let snakeY = snake[0].y;
 let food = {
-	x :Math.floor(Math.random()*50) * box,
-	y :Math.floor(Math.random()*18) * box
+	x :Math.floor(Math.random()*45 + 5) * box,
+	y :Math.floor(Math.random()*18 + 3) * box
 };
-console.log(food);
+
 
 canvas.width = window.innerWidth - 50;
 canvas.height = window.innerHeight - 50;
@@ -87,72 +88,83 @@ function checkCollision(head,array){
     return false;
 }
 
-function draw() {
+function launchGame() {
 	contex.drawImage(background,0,0,canvas.width,canvas.height);
 	contex.drawImage(randomFruit,food.x,food.y,100,100);
-	for(let i = 0; i < snake.length; i++) {
-		if (i == 0) {
-			contex.drawImage(headSnake,snake[i].x,snake[i].y);
-		 } 
-		 else {
-			contex.drawImage(bodySnake,snake[i].x,snake[i].y);
-		}
+	eatFood();
+	createNewGame();
+	drawSnake();
+	drawScore();
+	drawHighScore();
+	moveSnake();
+	saveHighScore();
+}
 
-		if (i == snake.length - 1) {
-			contex.drawImage(tailSnake,snake[i].x,snake[i].y);	
-		}
-	}
-
-	let snakeX = snake[0].x;
-	let snakeY = snake[0].y;
-
-	if (direction == "LEFT") snakeX -= box;
-	if (direction == "UP") snakeY -= box;
-	if (direction == "RIGHT") snakeX += box;
-	if (direction == "DOWN") snakeY += box;
-
+function eatFood() {
 	if (snakeX == food.x && snakeY == food.y) {
 		score++;
-
 		eatSound.play();
 		food = {
-			x :Math.floor(Math.random()*50 + 1.5) * box,
-			y :Math.floor(Math.random()*21 + 1.5) * box
+			x :Math.floor(Math.random()*45 + 5) * box,
+			y :Math.floor(Math.random()*18 + 3) * box
 		};
 	} else {
 		snake.pop();
 	}
+}
 
+function createNewGame() {
 	let newHead = {
 		x : snakeX,
 		y : snakeY
 	}
 
-	if (snakeX < 0 || snakeX > box * 51 || snakeY < box * 2 || snakeY > box*24 || checkCollision(newHead,snake)) {
+	if (snakeX < 5 || snakeX > canvas.width - 90 || 
+		snakeY < 80 || snakeY > canvas.height - 50 ||
+		checkCollision(newHead,snake)) {
 		deadSound.play();
 		clearInterval(game); 
 		setTimeout(() => location.reload(), 1000);
 	}
-	snake.unshift(newHead);
 
-	drawScore();
-	drawHighScore();
-	saveHighScore();
+	snake.unshift(newHead);
 }
 
 function saveHighScore() {
 	if (highScore == null) {
 		highScore = 0;
 	} 
+
 	if(score > highScore) {
 		highScore = score;
 		try {
-     localStorage.setItem(SAVE_KEY_SCORE,highScore);
-   } catch (e) {
-      if (e == QUOTA_EXCEEDED_ERR) {
-        alert('limit exceed');
-      }
-    }
+			localStorage.setItem(SAVE_KEY_SCORE,highScore);
+		} catch (e) {
+			if (e == QUOTA_EXCEEDED_ERR) {
+				alert('limit exceed');
+			}
+		}
+	}
+}
+
+function moveSnake() {
+	if (direction == "LEFT") snakeX -= box;
+	if (direction == "UP") snakeY -= box;
+	if (direction == "RIGHT") snakeX += box;
+	if (direction == "DOWN") snakeY += box;
+}
+
+function drawSnake() {
+	for(let i = 0; i < snake.length; i++) {
+		if (i == 0) {
+			contex.drawImage(headSnake,snake[i].x,snake[i].y);
+		} else {
+			contex.drawImage(bodySnake,snake[i].x,snake[i].y);
+		}
+
+		if (i == snake.length - 1) {
+			contex.drawImage(tailSnake,snake[i].x,snake[i].y);	
+		}
 	}
 }
 
@@ -168,4 +180,4 @@ function drawHighScore() {
 	contex.fillText(highScore, canvas.width - canvas.width / 12, canvas.height / 12);
 }
 
-let game = setInterval(draw,100);
+let game = setInterval(launchGame,100);
