@@ -24,7 +24,8 @@ const box = 35;
 let snake = [];
 let direction;
 let score = 0;
-let highscore = 0;
+const SAVE_KEY_SCORE = "highscoreNS";
+let highScore = localStorage.getItem(SAVE_KEY_SCORE);
 let fruits = [apple,orange,cherry,strawberry,banana,pineapple];
 let randomFruit = fruits[Math.floor(Math.random() * fruits.length)];
 
@@ -140,9 +141,19 @@ function draw() {
 }
 
 function saveHighScore() {
-  if(score > highscore) {
-   highscore = score;
-  }
+	if (highScore == null) {
+		highScore = 0;
+	} 
+	if(score > highScore) {
+		highScore = score;
+		try {
+     localStorage.setItem(SAVE_KEY_SCORE,highScore);
+   } catch (e) {
+      if (e == QUOTA_EXCEEDED_ERR) {
+        alert('limit exceed');
+      }
+    }
+	}
 }
 
 function drawScore() {
@@ -154,7 +165,7 @@ function drawScore() {
 function drawHighScore() {
 	contex.fillStyle = "white";
 	contex.font = "60px Changa one";
-	contex.fillText(highscore, canvas.width - canvas.width / 12, canvas.height / 12);
+	contex.fillText(highScore, canvas.width - canvas.width / 12, canvas.height / 12);
 }
 
 let game = setInterval(draw,100);
